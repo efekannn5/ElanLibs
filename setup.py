@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="elan",  # PyPI'de görünecek paket adı
-    version="0.1.3",
+    version="0.1.4",
     packages=find_packages(include=["src", "src.*"]),
     install_requires=[],  # Bağımlılıklar buraya eklenebilir (örn: numpy, pandas)
     author="Efekan Nefesoğlu",

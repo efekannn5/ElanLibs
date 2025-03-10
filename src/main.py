@@ -4,7 +4,7 @@ from image_utils import image_utils
 from list_utils import list_utils
 
 
-class main:
+class elan:
     # math
     math = math_utils()
     # string
@@ -16,5 +16,5 @@ class main:
 
 
 if __name__ == "__main__":
-    main()
+    elan()
 

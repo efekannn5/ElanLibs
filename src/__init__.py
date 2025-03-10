@@ -1,6 +1,6 @@
 from main import *
 
-__all__ = ["main"]
+__all__ = ["elan"]
 
 
 __version__ = "0.1.0"

@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 setup(
     name="elan",  # PyPI'de görünecek paket adı
     version="0.1.0",
-    packages=find_packages(),
+    packages=find_packages(include=["src", "src.*"]),
     install_requires=[],  # Bağımlılıklar buraya eklenebilir (örn: numpy, pandas)
-    author="Efekan",
+    author="Efekan Nefesoğlu",
     author_email="efekan8190nefesogeu@gmail.com",
     description="ElanLibs",
     long_description=open("README.md").read(),

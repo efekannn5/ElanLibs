@@ -5,7 +5,7 @@ setup(
     version="0.1.7",
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
-    install_requires=[cv2],  # Bağımlılıklar buraya eklenebilir (örn: numpy, pandas)
+    install_requires=['cv2'],  # Bağımlılıklar buraya eklenebilir (örn: numpy, pandas)
     author="Efekan Nefesoğlu",
     author_email="efekan8190nefesogeu@gmail.com",
     description="ElanLibs",

@@ -286,3 +286,6 @@ Herhangi bir soru, öneri veya geri bildirim için:
 - E-posta: efekan8190nefesogeu@gmail.com
 
 
+
+### Powered By Efekan Nefesoğlu
+

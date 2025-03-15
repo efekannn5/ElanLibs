@@ -2,17 +2,17 @@ class list_utils:
     def __init__(self):
         pass
 
-    def reverse(self, list):
-        return list[::-1]   
+    def reverse(self, input_list):
+        return input_list[::-1]   
     
-    def sort(self, list):
-        return sorted(list)
+    def sort(self, input_list):
+        return sorted(input_list)
     
-    def reverse(self, list):
-        return list[::-1]   
+    def reverse(self, input_list):
+        return input_list[::-1]   
    
-    def unique(self, list):
-        return list(set(list))
+    def unique(self, input_list):
+        return list(set(input_list))
     
     
     

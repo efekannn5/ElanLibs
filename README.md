@@ -81,6 +81,34 @@ sonuc = el.math.cube(3)  # Sonuç: 27
 sonuc = el.math.factorial(5)  # Sonuç: 120 (5! = 5×4×3×2×1)
 ```
 
+#### Çoklu Sayı İşlemleri
+
+`math` modülü ayrıca birden fazla sayı ile çalışmanızı sağlayan fonksiyonlar da sunar:
+
+```python
+# İstediğiniz kadar sayıyı toplama
+sonuc = el.math.sum_all(1, 2, 3, 4, 5)  # Sonuç: 15
+
+# İstediğiniz kadar sayıyı çarpma
+sonuc = el.math.multiply_all(1, 2, 3, 4, 5)  # Sonuç: 120
+
+# Sayıların ortalamasını alma
+sonuc = el.math.average(1, 2, 3, 4, 5)  # Sonuç: 3.0
+
+# En büyük değeri bulma
+sonuc = el.math.max_value(1, 5, 3, 9, 2)  # Sonuç: 9
+
+# En küçük değeri bulma
+sonuc = el.math.min_value(1, 5, 3, 9, 2)  # Sonuç: 1
+
+# En büyük ve en küçük değer arasındaki farkı bulma (aralık)
+sonuc = el.math.range_value(1, 5, 3, 9, 2)  # Sonuç: 8
+
+# Sayıların medyanını bulma
+sonuc = el.math.median(1, 3, 5, 7, 9)  # Sonuç: 5
+sonuc = el.math.median(1, 3, 5, 7)  # Sonuç: 4.0 (çift sayıda eleman olduğunda ortadaki iki sayının ortalaması)
+```
+
 ### String (Metin) İşlevleri
 
 `string` modülü, metinlerle çalışmak için çeşitli yardımcı fonksiyonlar sunar:
@@ -206,6 +234,16 @@ print(f"{sayi1} × {sayi2} = {el.math.multiply(sayi1, sayi2)}")
 print(f"{sayi1} ÷ {sayi2} = {el.math.divide(sayi1, sayi2)}")
 print(f"{sayi1}^{sayi2} = {el.math.power(sayi1, sayi2)}")
 print(f"{sayi1}! = {el.math.factorial(sayi1)}")
+
+# Çoklu sayılar ile işlemler
+sayilar = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+print(f"Sayıların toplamı: {el.math.sum_all(*sayilar)}")
+print(f"Sayıların çarpımı: {el.math.multiply_all(*sayilar)}")
+print(f"Sayıların ortalaması: {el.math.average(*sayilar)}")
+print(f"En büyük sayı: {el.math.max_value(*sayilar)}")
+print(f"En küçük sayı: {el.math.min_value(*sayilar)}")
+print(f"Sayıların aralığı: {el.math.range_value(*sayilar)}")
+print(f"Sayıların medyanı: {el.math.median(*sayilar)}")
 ```
 
 ### Senaryo 3: Görüntü İşleme Uygulaması
@@ -284,8 +322,6 @@ Herhangi bir soru, öneri veya geri bildirim için:
 
 - GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs)
 - E-posta: efekan8190nefesogeu@gmail.com
-
-
 
 ### Powered By Efekan Nefesoğlu
 

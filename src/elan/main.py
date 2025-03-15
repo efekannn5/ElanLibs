@@ -1,7 +1,7 @@
-from math_utils import math_utils
-from string_utils import string_utils
-from image_utils import image_utils
-from list_utils import list_utils
+from elan.math_utils import math_utils
+from elan.string_utils import string_utils
+from elan.image_utils import image_utils
+from elan.list_utils import list_utils
 
 
 class elan:

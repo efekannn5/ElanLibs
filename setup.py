@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="elan",  # PyPI'de görünecek paket adı
-    version="0.1.9",
+    version="0.2.0",
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
-    install_requires=[],  # Bağımlılıklar buraya eklenebilir (örn: numpy, pandas)
+    install_requires=["opencv-python"],  # Görüntü işleme için OpenCV eklendi
     author="Efekan Nefesoğlu",
     author_email="efekan8190nefesogeu@gmail.com",
     description="ElanLibs",

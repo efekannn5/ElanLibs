@@ -1,9 +1,10 @@
-from math_utils import *
-from string_utils import *
-from list_utils import *
-from image_utils import *
+from elan.math_utils import *
+from elan.string_utils import *
+from elan.list_utils import *
+from elan.image_utils import *
+from elan.main import elan
 
-__all__ = ["math_utils", "string_utils", "list_utils", "image_utils"]
+__all__ = ["math_utils", "string_utils", "list_utils", "image_utils", "elan"]
 
 
 __version__ = "0.1.0"

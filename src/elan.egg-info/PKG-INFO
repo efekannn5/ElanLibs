@@ -1,0 +1,139 @@
+Metadata-Version: 2.2
+Name: elan
+Version: 0.1.9
+Summary: ElanLibs
+Home-page: https://github.com/efekannn5/ElanLibs
+Author: Efekan Nefesoğlu
+Author-email: efekan8190nefesogeu@gmail.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: opencv-python
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# ElanLibs
+
+**`Efekan NefesoÄŸlu` ve `Elanur Tuana Ä°ÅŸcen` TarafÄ±ndan GeliÅŸtirilmiÅŸtir**
+
+## GiriÅŸ
+Elan, yaygÄ±n programlama gÃ¶revlerini basitleÅŸtirmek iÃ§in tasarlanmÄ±ÅŸ Ã§ok yÃ¶nlÃ¼ bir Python kÃ¼tÃ¼phanesidir. Matematiksel iÅŸlemler, liste manipÃ¼lasyonlarÄ±, string iÅŸleme ve temel gÃ¶rÃ¼ntÃ¼ iÅŸleme iÃ§in yardÄ±mcÄ± iÅŸlevler saÄŸlar. KÃ¼tÃ¼phane, projelerinize kolayca entegre edilebilecek ÅŸekilde tasarlanmÄ±ÅŸtÄ±r, bÃ¶ylece tekerleÄŸi yeniden icat etmek yerine Ã¶zellikler oluÅŸturmaya odaklanabilirsiniz.
+
+## AmaÃ§
+Elan'Ä±n amacÄ±, Ã§eÅŸitli projelere kolayca entegre edilebilecek yeniden kullanÄ±labilir iÅŸlevler koleksiyonu sunarak geliÅŸtirme sÃ¼resini ve Ã§abasÄ±nÄ± azaltmaktÄ±r.
+
+## Kurulum
+Elan'Ä± kurmak iÃ§in, depoyu klonlayÄ±n ve `ElanLibs` dizinini projenize dahil edin. Gerekli baÄŸÄ±mlÄ±lÄ±klarÄ±n yÃ¼klÃ¼ olduÄŸundan emin olun.
+
+### BaÄŸÄ±mlÄ±lÄ±klar
+- Python 3.x
+- OpenCV (gÃ¶rÃ¼ntÃ¼ iÅŸleme iÃ§in)
+
+```bash
+$ pip install opencv-python
+```
+
+### Depoyu KlonlayÄ±n
+```bash
+$ git clone <repository-url>
+```
+
+## KullanÄ±m
+
+### Matematiksel Ä°ÅŸlevler
+`math_utils` sÄ±nÄ±fÄ± Ã§eÅŸitli matematiksel iÅŸlemler saÄŸlar:
+
+- `add(a, b)`: `a` ve `b` toplamÄ±nÄ± dÃ¶ndÃ¼rÃ¼r.
+- `subtract(a, b)`: `a` ve `b` farkÄ±nÄ± dÃ¶ndÃ¼rÃ¼r.
+- `multiply(a, b)`: `a` ve `b` Ã§arpÄ±mÄ±nÄ± dÃ¶ndÃ¼rÃ¼r.
+- `divide(a, b)`: `a`'nÄ±n `b`'ye bÃ¶lÃ¼mÃ¼nÃ¼ dÃ¶ndÃ¼rÃ¼r.
+- `power(a, b)`: `a`'nÄ±n `b` kuvvetini dÃ¶ndÃ¼rÃ¼r.
+- `square_root(a)`: `a`'nÄ±n karekÃ¶kÃ¼nÃ¼ dÃ¶ndÃ¼rÃ¼r.
+- `cube_root(a)`: `a`'nÄ±n kÃ¼pkÃ¶kÃ¼nÃ¼ dÃ¶ndÃ¼rÃ¼r.
+- `square(a)`: `a`'nÄ±n karesini dÃ¶ndÃ¼rÃ¼r.
+- `cube(a)`: `a`'nÄ±n kÃ¼pÃ¼nÃ¼ dÃ¶ndÃ¼rÃ¼r.
+- `factorial(n)`: `n` faktÃ¶riyelini dÃ¶ndÃ¼rÃ¼r.
+
+### Liste Ä°ÅŸlevleri
+`list_utils` sÄ±nÄ±fÄ± liste manipÃ¼lasyonlarÄ± iÃ§in iÅŸlevler saÄŸlar:
+
+- `reverse(list)`: Ters Ã§evrilmiÅŸ listeyi dÃ¶ndÃ¼rÃ¼r.
+- `sort(list)`: Listenin sÄ±ralanmÄ±ÅŸ bir versiyonunu dÃ¶ndÃ¼rÃ¼r.
+- `unique(list)`: Benzersiz elemanlardan oluÅŸan bir liste dÃ¶ndÃ¼rÃ¼r.
+
+### String Ä°ÅŸlevleri
+`string_utils` sÄ±nÄ±fÄ± Ã§eÅŸitli string manipÃ¼lasyon iÅŸlevleri sunar:
+
+- `reverse(string)`: Ters Ã§evrilmiÅŸ stringi dÃ¶ndÃ¼rÃ¼r.
+- `capitalize(string)`: Stringin ilk karakterini bÃ¼yÃ¼k harf yapar.
+- `uppercase(string)`: Stringi bÃ¼yÃ¼k harfe Ã§evirir.
+- `lowercase(string)`: Stringi kÃ¼Ã§Ã¼k harfe Ã§evirir.
+- `title(string)`: Stringi baÅŸlÄ±k biÃ§imine Ã§evirir.
+- `swapcase(string)`: Stringdeki her karakterin harf durumunu deÄŸiÅŸtirir.
+- `reverse_words(string)`: Stringdeki her kelimeyi ters Ã§evirir.
+
+### GÃ¶rÃ¼ntÃ¼ Ä°ÅŸleme Ä°ÅŸlevleri
+`image_utils` sÄ±nÄ±fÄ± temel gÃ¶rÃ¼ntÃ¼ iÅŸleme iÅŸlevleri saÄŸlar:
+
+- `to_grayscale(image_path)`: Belirtilen yoldaki gÃ¶rÃ¼ntÃ¼yÃ¼ gri tonlamaya Ã§evirir.
+- `resize(image_path, width, height)`: GÃ¶rÃ¼ntÃ¼yÃ¼ belirtilen geniÅŸlik ve yÃ¼kseklikte yeniden boyutlandÄ±rÄ±r.
+- `rotate(image_path, angle)`: GÃ¶rÃ¼ntÃ¼yÃ¼ belirtilen aÃ§Ä± kadar dÃ¶ndÃ¼rÃ¼r.
+
+## Ã–rnek
+Elan kÃ¼tÃ¼phanesinin nasÄ±l kullanÄ±lacaÄŸÄ±na dair hÄ±zlÄ± bir Ã¶rnek:
+
+```python
+from ElanLibs.main import main
+
+# Ana sÄ±nÄ±fÄ± baÅŸlat
+elan = main()
+
+# Matematiksel iÅŸlemler
+print(elan.math.add(5, 3))  # Ã‡Ä±ktÄ±: 8
+print(elan.math.factorial(5))  # Ã‡Ä±ktÄ±: 120
+
+# Liste iÅŸlemleri
+print(elan.list.reverse([1, 2, 3]))  # Ã‡Ä±ktÄ±: [3, 2, 1]
+print(elan.list.unique([1, 2, 2, 3]))  # Ã‡Ä±ktÄ±: [1, 2, 3]
+
+# String iÅŸlemleri
+print(elan.string.reverse("Hello"))  # Ã‡Ä±ktÄ±: "olleH"
+print(elan.string.reverse_words("Hello World"))  # Ã‡Ä±ktÄ±: "olleH dlroW"
+
+# GÃ¶rÃ¼ntÃ¼ iÅŸlemleri
+# Not: Bu iÅŸlevler gÃ¶rÃ¼ntÃ¼ nesneleri dÃ¶ndÃ¼rÃ¼r, bu nesneler OpenCV iÅŸlevleri kullanÄ±larak kaydedilebilir veya gÃ¶rÃ¼ntÃ¼lenebilir.
+gray_image = elan.image.to_grayscale('path/to/image.jpg')
+resized_image = elan.image.resize('path/to/image.jpg', 100, 100)
+rotated_image = elan.image.rotate('path/to/image.jpg', 90)
+```
+
+## KatkÄ± Rehberi
+KatkÄ±lar memnuniyetle karÅŸÄ±lanÄ±r! Herhangi bir iyileÅŸtirme veya hata dÃ¼zeltmesi iÃ§in lÃ¼tfen depoyu Ã§atallayÄ±n ve bir Ã§ekme isteÄŸi gÃ¶nderin. Kodunuzun projenin kodlama standartlarÄ±na uygun olduÄŸundan ve uygun testler iÃ§erdiÄŸinden emin olun.
+
+## SSS
+**S: Hangi Python sÃ¼rÃ¼mÃ¼ gereklidir?**
+C: Elan, Python 3.x gerektirir.
+
+**S: Gerekli baÄŸÄ±mlÄ±lÄ±klarÄ± nasÄ±l yÃ¼klerim?**
+C: GÃ¶rÃ¼ntÃ¼ iÅŸleme iÃ§in OpenCV'yi yÃ¼klemek iÃ§in `pip install opencv-python` kullanÄ±n.
+
+**S: Elan'Ä± ticari projelerde kullanabilir miyim?**
+C: Evet, Elan, ticari kullanÄ±m iÃ§in izin veren MIT LisansÄ± altÄ±nda lisanslanmÄ±ÅŸtÄ±r.
+
+## Lisans
+Bu proje MIT LisansÄ± altÄ±nda lisanslanmÄ±ÅŸtÄ±r. Detaylar iÃ§in LICENSE dosyasÄ±na bakÄ±n.
+
+## Ä°letiÅŸim
+Herhangi bir soru veya Ã¶neri iÃ§in lÃ¼tfen Efekan NefesoÄŸlu ile iletiÅŸime geÃ§in.
+
+

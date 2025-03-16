@@ -165,6 +165,57 @@ sonuc = el.string.isidentifier("valid_name")  # Sonuç: True
 sonuc = el.string.reverse_words("Merhaba Dünya")  # Sonuç: "abahreM aynüD"
 ```
 
+#### Yazım Denetimi ve Düzeltme İşlevleri
+
+`string` modülü, Türkçe ve İngilizce metinlerde yazım hatalarını düzeltmek için gelişmiş işlevler sunar:
+
+```python
+# Dil tespiti
+dil = el.string.detect_language("merhaba dünya")  # Sonuç: "tr"
+dil = el.string.detect_language("hello world")    # Sonuç: "en"
+
+# Türkçe kelime düzeltme
+oneriler = el.string.suggest_correction("meraba", language="tr")  
+# Sonuç: ['merhaba']
+
+# İngilizce kelime düzeltme 
+oneriler = el.string.suggest_correction("helo", language="en")
+# Sonuç: ['hello']
+
+# Otomatik dil tespiti ile kelime düzeltme
+oneriler = el.string.suggest_correction("meraba")  # Türkçe olarak tespit edilir
+# Sonuç: ['merhaba']
+
+oneriler = el.string.suggest_correction("helo")    # İngilizce olarak tespit edilir
+# Sonuç: ['hello']
+
+# Birden fazla öneri alma
+oneriler = el.string.suggest_correction("selm", language="tr", max_suggestions=3)  
+# Sonuç: ['selam', 'ses', 'film'] gibi
+
+# Türkçe metin düzeltme
+duzeltilmis_metin = el.string.correct_text("meraba naslsın", language="tr")
+# Sonuç: "merhaba nasılsın"
+
+# İngilizce metin düzeltme
+duzeltilmis_metin = el.string.correct_text("helo worl", language="en")
+# Sonuç: "hello world"
+
+# Otomatik dil tespiti ile metin düzeltme
+duzeltilmis_metin = el.string.correct_text("meraba nasilsin")  # Türkçe olarak tespit edilir
+# Sonuç: "merhaba nasılsın" 
+
+# Düzeltme mesafesini ayarlama (daha esnek düzeltmeler için)
+duzeltilmis_metin = el.string.correct_text("merhba nasilsin", language="tr", max_distance=3)
+# Sonuç: "merhaba nasılsın"
+
+# Kelime veri tabanını güncelleme
+# Daha fazla kelime ile kelime havuzunu genişletmek için:
+success = el.string.update_word_database()  # Hem Türkçe hem İngilizce
+success = el.string.update_word_database(language="tr")  # Sadece Türkçe
+success = el.string.update_word_database(language="en")  # Sadece İngilizce
+```
+
 ### Liste İşlevleri
 
 `list` modülü, listelerle çalışmak için kullanışlı fonksiyonlar sunar:
@@ -246,7 +297,41 @@ print(f"Sayıların aralığı: {el.math.range_value(*sayilar)}")
 print(f"Sayıların medyanı: {el.math.median(*sayilar)}")
 ```
 
-### Senaryo 3: Görüntü İşleme Uygulaması
+### Senaryo 3: Çokdilli Yazım Denetimi ve Düzeltme Uygulaması
+
+```python
+from elan import elan
+
+el = elan()
+
+# Dil tespiti
+texts = ["merhaba dünya", "hello world", "merhaba world"]
+for text in texts:
+    dil = el.string.detect_language(text)
+    print(f"'{text}' metni {dil} dilinde")
+
+# Yanlış yazılmış metinleri düzeltme
+yanlis_metinler = {
+    "tr": "meraba nasilsin bugun hva nasil",
+    "en": "helo worl, how ar you tody"
+}
+
+for dil, metin in yanlis_metinler.items():
+    duzeltilmis = el.string.correct_text(metin, language=dil)
+    print(f"\n{dil.upper()} dili:")
+    print(f"Orijinal: {metin}")
+    print(f"Düzeltilmiş: {duzeltilmis}")
+
+# Kullanıcı girdisi ile yazım denetimi
+user_input = input("\nBir kelime yazın: ")
+dil = el.string.detect_language(user_input)
+print(f"Tespit edilen dil: {dil}")
+
+oneriler = el.string.suggest_correction(user_input, language=dil, max_suggestions=5)
+print(f"Öneriler: {oneriler}")
+```
+
+### Senaryo 4: Görüntü İşleme Uygulaması
 
 ```python
 from elan import elan
@@ -311,6 +396,12 @@ C: `pip install --upgrade elan` komutunu kullanarak kütüphanenin son sürümü
 
 **S: Görüntü işleme fonksiyonları nasıl çalışır?**  
 C: Görüntü işleme fonksiyonları, OpenCV kütüphanesini kullanır ve görüntü işleme işlemleri için bir OpenCV nesnesi döndürür.
+
+**S: Yazım denetimi ve düzeltme işlevleri hangi dilleri destekler?**  
+C: Şu anda Türkçe ve İngilizce dillerini destekler. Otomatik dil tespiti özelliği ile yazılan metnin diline göre düzeltmeler yapılabilir.
+
+**S: Kelime veri tabanı ne kadar büyüktür?**  
+C: İlk kurulumda temel bir kelime kümesi gelir. `update_word_database()` fonksiyonu ile daha kapsamlı kelime havuzları internet üzerinden indirilebilir.
 
 ## Lisans
 

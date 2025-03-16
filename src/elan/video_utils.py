@@ -808,6 +808,350 @@ class video_utils:
             first_cap.release()
             if 'out' in locals():
                 out.release()
+    
+    def detect_faces_in_video(self, input_video: str, output_video: str = None,
+                            scale_factor: float = 1.1, min_neighbors: int = 5,
+                            min_size: Tuple[int, int] = (30, 30),
+                            start_time: float = 0, end_time: float = None,
+                            draw_rectangles: bool = True,
+                            rectangle_color: Tuple[int, int, int] = (0, 0, 255),
+                            rectangle_thickness: int = 2,
+                            codec: str = "mp4v") -> List[Dict[str, Any]]:
+        """Videodaki yüzleri tespit et
+        
+        Args:
+            input_video: Giriş video dosyası yolu
+            output_video: Yüz tespiti yapılmış video çıktısı (None=kaydetmez)
+            scale_factor: Ölçek faktörü (opencv cascade parametresi)
+            min_neighbors: Minimum komşu sayısı (opencv cascade parametresi)
+            min_size: Minimum yüz boyutu (genişlik, yükseklik)
+            start_time: Başlangıç zamanı (saniye)
+            end_time: Bitiş zamanı (saniye) (None=videonun sonuna kadar)
+            draw_rectangles: Yüz tespiti için dikdörtgen çiz
+            rectangle_color: Dikdörtgen rengi (BGR formatında)
+            rectangle_thickness: Dikdörtgen kalınlığı
+            codec: Video codec'i
+            
+        Returns:
+            List[Dict]: Tespit edilen yüz bilgileri
+            [
+                {
+                    'frame': kare numarası,
+                    'timestamp': zaman damgası (sn),
+                    'timestamp_formatted': zaman damgası (hh:mm:ss),
+                    'face_count': tespit edilen yüz sayısı,
+                    'faces': [(x, y, w, h), ...] (yüz koordinatları)
+                },
+                ...
+            ]
+        """
+        self._check_video_path(input_video)
+        
+        cap = cv2.VideoCapture(input_video)
+        if not cap.isOpened():
+            raise ValueError(f"{input_video} dosyası açılamadı")
+        
+        out = None
+        face_data = []
+        
+        try:
+            # Video özelliklerini al
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            
+            # Zaman bilgilerini kare indekslerine dönüştür
+            start_frame = int(start_time * fps) if start_time > 0 else 0
+            end_frame = int(end_time * fps) if end_time is not None else total_frames
+            
+            # Yüz tespiti için cascade classifier yükle
+            face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+            face_cascade = cv2.CascadeClassifier(face_cascade_path)
+            
+            # Çıkış video ayarları
+            if output_video:
+                fourcc = cv2.VideoWriter_fourcc(*codec)
+                
+                # Çıktı dizinini kontrol et ve oluştur
+                output_dir = os.path.dirname(output_video)
+                if output_dir and not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                
+                out = cv2.VideoWriter(output_video, fourcc, fps, (width, height))
+            
+            # İstenen kareye atla
+            if start_frame > 0:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+            
+            frame_count = start_frame
+            
+            while frame_count < end_frame:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                # Yüz tespiti için gri tonlamalı görüntüye dönüştür
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                
+                # Yüzleri tespit et
+                faces = face_cascade.detectMultiScale(
+                    gray,
+                    scaleFactor=scale_factor,
+                    minNeighbors=min_neighbors,
+                    minSize=min_size
+                )
+                
+                # Tespit edilen yüzleri kaydet
+                if len(faces) > 0:
+                    timestamp = frame_count / fps
+                    face_info = {
+                        'frame': frame_count,
+                        'timestamp': timestamp,
+                        'timestamp_formatted': str(datetime.timedelta(seconds=int(timestamp))),
+                        'face_count': len(faces),
+                        'faces': [(int(x), int(y), int(w), int(h)) for (x, y, w, h) in faces]
+                    }
+                    face_data.append(face_info)
+                    
+                    # Yüz dikdörtgenleri çiz
+                    if draw_rectangles and output_video:
+                        for (x, y, w, h) in faces:
+                            cv2.rectangle(frame, (x, y), (x+w, y+h), rectangle_color, rectangle_thickness)
+                
+                # Çıkış videosu oluştur
+                if output_video:
+                    # Bilgileri ekrana yaz
+                    cv2.putText(frame, f"Yüz Sayısı: {len(faces)}", 
+                              (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                    
+                    time_info = str(datetime.timedelta(seconds=int(frame_count/fps)))
+                    cv2.putText(frame, f"Zaman: {time_info}", 
+                              (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                    
+                    out.write(frame)
+                
+                frame_count += 1
+            
+            return face_data
+        finally:
+            cap.release()
+            if out is not None:
+                out.release()
+    
+    def recognize_faces_in_video(self, input_video: str, known_faces_dir: str, 
+                               output_video: str = None, tolerance: float = 0.6,
+                               start_time: float = 0, end_time: float = None,
+                               codec: str = "mp4v", skip_frames: int = 5) -> List[Dict[str, Any]]:
+        """Videodaki yüzleri tanı
+        
+        Args:
+            input_video: Giriş video dosyası yolu
+            known_faces_dir: Bilinen yüzlerin bulunduğu klasör 
+                             (her kişi için bir alt klasör, içinde o kişinin resimleri)
+            output_video: Yüz tanıma yapılmış video çıktısı (None=kaydetmez)
+            tolerance: Eşleşme toleransı (0-1 arası, düşük değer daha kesin eşleşme)
+            start_time: Başlangıç zamanı (saniye)
+            end_time: Bitiş zamanı (saniye) (None=videonun sonuna kadar)
+            codec: Video codec'i
+            skip_frames: Kaç karede bir işlem yapılacağı (performans için)
+            
+        Returns:
+            List[Dict]: Tanınan yüz bilgileri
+            [
+                {
+                    'frame': kare numarası,
+                    'timestamp': zaman damgası (sn),
+                    'timestamp_formatted': zaman damgası (hh:mm:ss),
+                    'face_count': tespit edilen yüz sayısı,
+                    'recognized_faces': [
+                        {
+                            'name': kişi adı,
+                            'location': (x, y, w, h),
+                            'confidence': güven değeri
+                        },
+                        ...
+                    ]
+                },
+                ...
+            ]
+        """
+        try:
+            # face_recognition kütüphanesini yüklemeyi dene
+            import face_recognition
+        except ImportError:
+            raise ImportError("Bu özellik için 'face_recognition' kütüphanesi gereklidir. Lütfen kurun: pip install face_recognition")
+        
+        self._check_video_path(input_video)
+        
+        # Bilinen yüzleri yükle
+        known_face_encodings = []
+        known_face_names = []
+        
+        if not os.path.exists(known_faces_dir):
+            raise FileNotFoundError(f"Bilinen yüzler klasörü bulunamadı: {known_faces_dir}")
+        
+        # Her kişi için alt klasörleri tara
+        for person_name in os.listdir(known_faces_dir):
+            person_dir = os.path.join(known_faces_dir, person_name)
+            if os.path.isdir(person_dir):
+                # Kişiye ait görüntüleri bul
+                for img_file in os.listdir(person_dir):
+                    if img_file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                        img_path = os.path.join(person_dir, img_file)
+                        try:
+                            # Görüntüyü yükle ve yüz kodlamasını çıkar
+                            image = face_recognition.load_image_file(img_path)
+                            face_encodings = face_recognition.face_encodings(image)
+                            
+                            if len(face_encodings) > 0:
+                                # İlk yüz kodlamasını kullan
+                                known_face_encodings.append(face_encodings[0])
+                                known_face_names.append(person_name)
+                                print(f"Bilinen yüz yüklendi: {person_name} ({img_file})")
+                        except Exception as e:
+                            print(f"Görüntü yükleme hatası ({img_path}): {e}")
+        
+        if not known_face_encodings:
+            raise ValueError("Hiç bilinen yüz bulunamadı. Lütfen known_faces_dir'de her kişi için bir klasör oluşturun.")
+        
+        print(f"Toplam {len(known_face_encodings)} bilinen yüz yüklendi, {len(set(known_face_names))} farklı kişi")
+        
+        cap = cv2.VideoCapture(input_video)
+        if not cap.isOpened():
+            raise ValueError(f"{input_video} dosyası açılamadı")
+        
+        out = None
+        recognition_data = []
+        
+        try:
+            # Video özelliklerini al
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            
+            # Zaman bilgilerini kare indekslerine dönüştür
+            start_frame = int(start_time * fps) if start_time > 0 else 0
+            end_frame = int(end_time * fps) if end_time is not None else total_frames
+            
+            # Çıkış video ayarları
+            if output_video:
+                fourcc = cv2.VideoWriter_fourcc(*codec)
+                
+                # Çıktı dizinini kontrol et ve oluştur
+                output_dir = os.path.dirname(output_video)
+                if output_dir and not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                
+                out = cv2.VideoWriter(output_video, fourcc, fps, (width, height))
+            
+            # İstenen kareye atla
+            if start_frame > 0:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+            
+            frame_count = start_frame
+            process_this_frame = 0  # Her skip_frames karede bir yüz tanıma işlemi yap
+            
+            # Son tanınan yüzleri sakla (atlanmış kareler için)
+            last_face_locations = []
+            last_face_names = []
+            
+            while frame_count < end_frame:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                # BGR'den RGB'ye dönüştür (face_recognition için)
+                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                # Her skip_frames karede bir yüz tanıma yap
+                if process_this_frame == 0:
+                    # Mevcut karedeki tüm yüzlerin konumlarını bul
+                    face_locations = face_recognition.face_locations(rgb_frame)
+                    
+                    if face_locations:
+                        # Yüz kodlamalarını çıkar
+                        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+                        
+                        face_names = []
+                        face_confidences = []
+                        
+                        # Her yüz kodlamasını bilinen yüzlerle karşılaştır
+                        for face_encoding in face_encodings:
+                            # Bilinen tüm yüzlerle karşılaştır
+                            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance)
+                            
+                            name = "Bilinmeyen"
+                            confidence = 0.0
+                            
+                            # En iyi eşleşmeyi bul
+                            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                            if len(face_distances) > 0:
+                                best_match_index = np.argmin(face_distances)
+                                if matches[best_match_index]:
+                                    name = known_face_names[best_match_index]
+                                    # Güven değerini hesapla (düşük mesafe = yüksek güven)
+                                    confidence = 1.0 - face_distances[best_match_index]
+                            
+                            face_names.append(name)
+                            face_confidences.append(confidence)
+                        
+                        # Son tanınan yüzleri güncelle
+                        last_face_locations = face_locations
+                        last_face_names = face_names
+                        
+                        # Tanıma bilgilerini kaydet
+                        timestamp = frame_count / fps
+                        recognition_info = {
+                            'frame': frame_count,
+                            'timestamp': timestamp,
+                            'timestamp_formatted': str(datetime.timedelta(seconds=int(timestamp))),
+                            'face_count': len(face_locations),
+                            'recognized_faces': [
+                                {
+                                    'name': name,
+                                    'location': (location[3], location[0], location[1] - location[0], location[2] - location[3]),  # (x, y, w, h)
+                                    'confidence': float(conf)
+                                }
+                                for name, conf, location in zip(face_names, face_confidences, face_locations)
+                            ]
+                        }
+                        recognition_data.append(recognition_info)
+                
+                # Çıkış videosu için bilgileri ekle
+                if output_video:
+                    # Dikdörtgenleri ve isimleri çiz
+                    for (top, right, bottom, left), name in zip(last_face_locations, last_face_names):
+                        # Dikdörtgen
+                        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+                        
+                        # İsim etiketi için arka plan
+                        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+                        
+                        # İsim
+                        cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 
+                                  0.8, (255, 255, 255), 1)
+                    
+                    # Bilgileri ekrana yaz
+                    cv2.putText(frame, f"Yüz Sayısı: {len(last_face_locations)}", 
+                              (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                    
+                    time_info = str(datetime.timedelta(seconds=int(frame_count/fps)))
+                    cv2.putText(frame, f"Zaman: {time_info}", 
+                              (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                    
+                    out.write(frame)
+                
+                # Sonraki kare için sayaçları güncelle
+                process_this_frame = (process_this_frame + 1) % skip_frames
+                frame_count += 1
+            
+            return recognition_data
+        finally:
+            cap.release()
+            if out is not None:
+                out.release()
 
 if __name__ == "__main__":
     video_utils() 

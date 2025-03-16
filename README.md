@@ -487,6 +487,35 @@ el.video.combine_videos(
     "birlesik_video.mp4",
     transition_frames=15  # 15 karelik yumuşak geçiş
 )
+
+# Videoda yüz algılama
+yuz_bilgileri = el.video.detect_faces_in_video(
+    "ornek_video.mp4",
+    "yuz_algilama.mp4",
+    scale_factor=1.1,
+    min_neighbors=5,
+    min_size=(30, 30),
+    rectangle_color=(0, 0, 255)  # Kırmızı dikdörtgenler
+)
+
+print(f"Toplam {len(yuz_bilgileri)} karede yüz tespit edildi")
+for bilgi in yuz_bilgileri:
+    print(f"Kare {bilgi['frame']}: {bilgi['face_count']} yüz tespit edildi")
+
+# Videoda yüz tanıma (face recognition)
+# Not: Bu özellik için 'pip install face_recognition' gereklidir
+tanima_bilgileri = el.video.recognize_faces_in_video(
+    "ornek_video.mp4",
+    "bilinen_kisiler",  # Her kişi için bir klasör içeren ana klasör
+    "yuz_tanima.mp4",
+    tolerance=0.6,  # Eşleşme hassasiyeti (düşük değer = daha kesin eşleşme)
+    skip_frames=5    # Her 5 karede bir tanıma yap (performans için)
+)
+
+print(f"Toplam {len(tanima_bilgileri)} karede yüz tanıma yapıldı")
+for bilgi in tanima_bilgileri:
+    for yuz in bilgi['recognized_faces']:
+        print(f"Tanınan kişi: {yuz['name']}, güven: {yuz['confidence']:.2f}")
 ```
 
 ### Video İşleme Senaryoları
@@ -620,6 +649,96 @@ if hareket_parcalari:
     print(f"Hareket özet videosu oluşturuldu: {final_video}")
 else:
     print("Hareket tespit edilemedi veya dosyalar oluşturulamadı")
+```
+
+#### Senaryo 3: Yüz Tanıma ve Takip Sistemi
+
+```python
+from elan import elan
+import os
+import datetime
+import shutil
+
+el = elan()
+
+# Yüz tanıma ve takip sistemi
+kaynak_video = "toplanti_kaydi.mp4"
+sonuc_klasoru = "yuz_takip_sonuclari"
+os.makedirs(sonuc_klasoru, exist_ok=True)
+
+# Bilinen kişiler klasörü
+bilinen_kisiler = "bilinen_kisiler"
+if not os.path.exists(bilinen_kisiler):
+    os.makedirs(bilinen_kisiler)
+    
+    # ÖRNEK: Gerçek uygulamada burası kişilere ait görüntülerle doldurulmalıdır
+    # Burada yalnızca klasör yapısını gösteriyoruz
+    for kisi in ["Ahmet", "Ayşe", "Mehmet"]:
+        os.makedirs(os.path.join(bilinen_kisiler, kisi), exist_ok=True)
+
+# 1. Önce tüm yüzleri tespit et
+yuz_algilama_video = os.path.join(sonuc_klasoru, "yuz_algilama.mp4")
+tespit_edilen_yuzler = el.video.detect_faces_in_video(
+    kaynak_video,
+    yuz_algilama_video,
+    min_size=(50, 50)  # Daha büyük yüzleri tespit et
+)
+
+print(f"Toplam {len(tespit_edilen_yuzler)} karede yüz tespit edildi")
+
+# 2. Tespit edilen yüzleri kullanarak yüz tanıma yap
+yuz_tanima_video = os.path.join(sonuc_klasoru, "yuz_tanima.mp4")
+tanima_sonuclari = el.video.recognize_faces_in_video(
+    kaynak_video,
+    bilinen_kisiler,
+    yuz_tanima_video,
+    tolerance=0.6,
+    skip_frames=3  # Performans için her 3 karede bir tanıma yap
+)
+
+# 3. Kişi bazlı analiz yap
+kisi_istatistikleri = {}
+
+for bilgi in tanima_sonuclari:
+    for yuz in bilgi['recognized_faces']:
+        kisi = yuz['name']
+        if kisi not in kisi_istatistikleri:
+            kisi_istatistikleri[kisi] = {
+                'ilk_gorunme': bilgi['timestamp'],
+                'son_gorunme': bilgi['timestamp'],
+                'toplam_sure': 0,
+                'gorunme_sayisi': 1,
+                'ortalama_guven': yuz['confidence']
+            }
+        else:
+            # Kişi istatistiklerini güncelle
+            kisi_istatistikleri[kisi]['son_gorunme'] = bilgi['timestamp']
+            kisi_istatistikleri[kisi]['gorunme_sayisi'] += 1
+            kisi_istatistikleri[kisi]['ortalama_guven'] += yuz['confidence']
+
+# İstatistikleri hesapla ve rapor oluştur
+rapor_dosyasi = os.path.join(sonuc_klasoru, "kisi_raporu.txt")
+with open(rapor_dosyasi, 'w', encoding='utf-8') as f:
+    f.write(f"Yüz Tanıma Raporu - {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}\n")
+    f.write(f"Kaynak video: {kaynak_video}\n\n")
+    
+    for kisi, istatistik in kisi_istatistikleri.items():
+        # Toplam süreyi hesapla
+        toplam_sure = istatistik['son_gorunme'] - istatistik['ilk_gorunme']
+        ortalama_guven = istatistik['ortalama_guven'] / istatistik['gorunme_sayisi']
+        
+        f.write(f"Kişi: {kisi}\n")
+        f.write(f"  İlk görünme: {str(datetime.timedelta(seconds=int(istatistik['ilk_gorunme'])))}\n")
+        f.write(f"  Son görünme: {str(datetime.timedelta(seconds=int(istatistik['son_gorunme'])))}\n")
+        f.write(f"  Toplam süre: {str(datetime.timedelta(seconds=int(toplam_sure)))}\n")
+        f.write(f"  Görünme sayısı: {istatistik['gorunme_sayisi']}\n")
+        f.write(f"  Ortalama güven: {ortalama_guven:.2f}\n\n")
+
+print(f"Kişi raporu oluşturuldu: {rapor_dosyasi}")
+
+# 4. Sonuç videosu oluştur
+print(f"Yüz algılama sonuç videosu: {yuz_algilama_video}")
+print(f"Yüz tanıma sonuç videosu: {yuz_tanima_video}")
 ```
 
 ## Örnek Kullanım Senaryoları

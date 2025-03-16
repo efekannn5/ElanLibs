@@ -233,22 +233,148 @@ sonuc = el.list.unique([1, 2, 2, 3, 3, 4, 5, 5])  # Sonuç: [1, 2, 3, 4, 5]
 
 ### Görüntü İşleme İşlevleri
 
-`image` modülü, temel görüntü işleme işlevleri sunar. Bu işlevler OpenCV kütüphanesini kullanır:
+`image` modülü, gelişmiş görüntü işleme işlevleri sunar. Bu modül OpenCV kütüphanesini arka planda kullanır ancak kullanıcının OpenCV bilmesine gerek kalmadan kolay bir arayüz sağlar:
 
 ```python
 # Bir görüntüyü gri tonlamaya çevirme
 gri_resim = el.image.to_grayscale('resim.jpg')
+# veya işlenmiş görüntüyü doğrudan kaydetme
+el.image.to_grayscale('resim.jpg', output_path='gri_resim.jpg')
 
 # Bir görüntüyü yeniden boyutlandırma
 boyutlandirilmis_resim = el.image.resize('resim.jpg', 800, 600)
+# En-boy oranını koruyarak boyutlandırma
+el.image.resize('resim.jpg', 800, 0, keep_aspect_ratio=True, output_path='boyutlandirilmis_resim.jpg')
 
 # Bir görüntüyü döndürme (açı derece cinsinden)
 dondurulmus_resim = el.image.rotate('resim.jpg', 90)  # 90 derece döndürme
 
-# Not: Bu fonksiyonlar OpenCV görüntü nesneleri döndürür.
-# Görüntüyü kaydetmek için OpenCV'nin imwrite fonksiyonunu kullanabilirsiniz:
-import cv2
-cv2.imwrite('gri_resim.jpg', gri_resim)
+# Görüntüyü kırpma (x, y, genişlik, yükseklik)
+kirpilmis_resim = el.image.crop('resim.jpg', 100, 100, 300, 200)
+
+# Görüntüye bulanıklık ekleme
+bulanik_resim = el.image.add_blur('resim.jpg', blur_type='gaussian', kernel_size=5)
+# Farklı bulanıklık tipleri: 'gaussian', 'median', 'box'
+
+# Kenar tespiti yapma
+kenarlar = el.image.detect_edges('resim.jpg', method='canny', threshold1=100, threshold2=200)
+# Farklı kenar tespit yöntemleri: 'canny', 'sobel'
+
+# Parlaklık ayarlama (1.0 değişim yok, >1.0 daha parlak, <1.0 daha karanlık)
+parlak_resim = el.image.adjust_brightness('resim.jpg', factor=1.5)
+
+# Kontrast ayarlama (1.0 değişim yok, >1.0 daha fazla kontrast, <1.0 daha az kontrast)
+kontrastli_resim = el.image.adjust_contrast('resim.jpg', factor=1.3)
+
+# Histogram eşitleme (görüntü iyileştirme)
+iyilestirilmis_resim = el.image.equalize_histogram('resim.jpg')
+
+# Görüntüye metin ekleme
+resim_metin = el.image.add_text('resim.jpg', 'Merhaba Dünya', position=(50, 50), 
+                               font_size=1, color=(255, 0, 0), thickness=2)
+
+# Görüntüye dikdörtgen ekleme
+resim_dikdortgen = el.image.add_rectangle('resim.jpg', top_left=(50, 50), 
+                                         bottom_right=(150, 150), color=(0, 255, 0))
+
+# Yüz tespiti
+resim_yuzler, yuzler = el.image.detect_faces('resim.jpg', draw_rectangles=True)
+print(f"Tespit edilen yüz sayısı: {len(yuzler)}")
+
+# Sanatsal filtreler uygulama
+sepya_resim = el.image.apply_filter('resim.jpg', filter_type='sepia')
+negatif_resim = el.image.apply_filter('resim.jpg', filter_type='negative')
+karakalem_resim = el.image.apply_filter('resim.jpg', filter_type='sketch')
+karikatur_resim = el.image.apply_filter('resim.jpg', filter_type='cartoon')
+
+# İki görüntüyü birleştirme (harmanlanma)
+birlesik_resim = el.image.merge_images('resim1.jpg', 'resim2.jpg', 
+                                      weight1=0.7, weight2=0.3)
+
+# Görüntüyü kaydetme
+el.image.save_image(iyilestirilmis_resim, 'sonuc.jpg')
+
+# Not: Tüm fonksiyonlar hem dosya yolları hem de NumPy dizileri ile çalışabilir
+# Ayrıca tüm fonksiyonlarda işlem sonucunu dosyaya kaydetmek için opsiyonel
+# output_path parametresi kullanılabilir
+```
+
+### Görüntü İşleme Çoklu İşlem Örneği
+
+```python
+from elan import elan
+
+el = elan()
+
+# Adım adım görüntü işleme
+resim_yolu = "ornek_resim.jpg"
+
+# 1. Görüntüyü yükle ve boyutlandır
+resim = el.image.resize(resim_yolu, 800, 600, keep_aspect_ratio=True)
+
+# 2. Parlaklık ve kontrast ayarla
+resim = el.image.adjust_brightness(resim, factor=1.2)  # Biraz daha parlak
+resim = el.image.adjust_contrast(resim, factor=1.1)    # Biraz daha kontrastlı
+
+# 3. Görüntüye hafif bulanıklık ekle (gürültüyü azaltmak için)
+resim = el.image.add_blur(resim, blur_type='gaussian', kernel_size=3)
+
+# 4. Histogram eşitleme ile detayları iyileştir
+resim = el.image.equalize_histogram(resim)
+
+# 5. Yüzleri tespit et ve dikdörtgen ile işaretle
+resim, yuzler = el.image.detect_faces(resim, draw_rectangles=True)
+
+# 6. Tespit sonucunu metin olarak ekle
+if len(yuzler) > 0:
+    metin = f"{len(yuzler)} yüz tespit edildi"
+    resim = el.image.add_text(resim, metin, position=(20, 30), 
+                             font_size=0.8, color=(0, 255, 0), thickness=2)
+
+# 7. Sonuç görüntüsünü kaydet
+el.image.save_image(resim, "islenmiş_resim.jpg")
+
+print("Görüntü işleme tamamlandı!")
+```
+
+### Görüntü Filtreleri ve Efektler Örneği
+
+```python
+from elan import elan
+import os
+
+el = elan()
+
+# Orjinal görüntü üzerinde farklı filtreler uygulama
+resim_yolu = "ornek_resim.jpg"
+sonuc_klasoru = "filtre_sonuclari"
+
+# Sonuç klasörünü oluştur
+os.makedirs(sonuc_klasoru, exist_ok=True)
+
+# Tüm filtre tiplerini uygula
+filtreler = ['sepia', 'negative', 'sketch', 'cartoon']
+
+for filtre in filtreler:
+    sonuc_yolu = os.path.join(sonuc_klasoru, f"{filtre}_resim.jpg")
+    el.image.apply_filter(resim_yolu, filter_type=filtre, output_path=sonuc_yolu)
+    print(f"{filtre} filtresi uygulandı: {sonuc_yolu}")
+
+# Kenar tespiti
+kenar_yolu = os.path.join(sonuc_klasoru, "kenarlar.jpg")
+el.image.detect_edges(resim_yolu, method='canny', 
+                     threshold1=100, threshold2=200, 
+                     output_path=kenar_yolu)
+print(f"Kenar tespiti tamamlandı: {kenar_yolu}")
+
+# Farklı bulanıklık tipleri
+bulaniklik_tipleri = ['gaussian', 'median', 'box']
+for tip in bulaniklik_tipleri:
+    bulanik_yolu = os.path.join(sonuc_klasoru, f"{tip}_bulanik.jpg")
+    el.image.add_blur(resim_yolu, blur_type=tip, kernel_size=9, output_path=bulanik_yolu)
+    print(f"{tip} bulanıklık uygulandı: {bulanik_yolu}")
+
+print("Tüm filtreler ve efektler uygulandı!")
 ```
 
 ## Örnek Kullanım Senaryoları

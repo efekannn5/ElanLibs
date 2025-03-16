@@ -6,7 +6,7 @@ class image_utils:
     def __init__(self):
         """Görüntü işleme yardımcıları sınıfı"""
         pass
-        
+
     def _read_image(self, image_input):
         """Görüntüyü oku - dosya yolu veya numpy dizisi kabul eder"""
         if isinstance(image_input, str):
@@ -39,7 +39,7 @@ class image_utils:
         if len(image.shape) == 2 or image.shape[2] == 1:
             gray_image = image  # Zaten gri tonlamalı
         else:
-            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         return self._save_result(gray_image, output_path)
 
     def resize(self, image_input, width, height, keep_aspect_ratio=False, output_path=None):
@@ -387,6 +387,6 @@ class image_utils:
         """
         image = self._read_image(image_input)
         return cv2.imwrite(output_path, image)
-        
+
 if __name__ == "__main__":
     image_utils() 

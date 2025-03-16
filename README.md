@@ -377,6 +377,251 @@ for tip in bulaniklik_tipleri:
 print("Tüm filtreler ve efektler uygulandı!")
 ```
 
+### Video İşleme İşlevleri
+
+`video` modülü, kapsamlı video işleme özellikleri sunar. Bu modül OpenCV'yi arka planda kullanır ancak kullanıcının doğrudan OpenCV ile ilgilenmesine gerek kalmaz:
+
+```python
+from elan import elan
+
+el = elan()
+
+# Video hakkında bilgi alma
+video_bilgisi = el.video.get_video_info("ornek_video.mp4")
+print(f"Video çözünürlüğü: {video_bilgisi['width']}x{video_bilgisi['height']}")
+print(f"FPS: {video_bilgisi['fps']}")
+print(f"Toplam süre: {video_bilgisi['duration_formatted']}")
+
+# Videodan belirli aralıklarla kare çıkarma
+kareler = el.video.extract_frames(
+    "ornek_video.mp4",
+    output_dir="kareler",
+    frame_interval=30,  # Her 30 karede bir kare çıkar
+    max_frames=10       # En fazla 10 kare çıkar
+)
+print(f"{len(kareler)} kare çıkarıldı")
+
+# Karelerden video oluşturma
+el.video.create_video_from_frames(
+    "kareler",
+    "yeni_video.mp4",
+    fps=30.0
+)
+
+# Videoyu farklı formata dönüştürme
+el.video.convert_video(
+    "ornek_video.mp4",
+    "donusturulmus_video.mp4",
+    codec="mp4v",
+    resize=(640, 480)
+)
+
+# Video kırpma (belirli bir zaman aralığını alma)
+el.video.trim_video(
+    "ornek_video.mp4",
+    "kirpilmis_video.mp4",
+    start_time=10.5,    # 10.5 saniyeden başla
+    end_time=20.0       # 20. saniyede bitir
+)
+
+# Videoya filtre uygulama
+el.video.apply_filter_to_video(
+    "ornek_video.mp4",
+    "gri_video.mp4",
+    filter_type="grayscale"  # Gri tonlama filtresi
+)
+
+# Videoya sepya filtresi uygulama
+el.video.apply_filter_to_video(
+    "ornek_video.mp4",
+    "sepya_video.mp4",
+    filter_type="sepia"
+)
+
+# Videoya bulanıklık filtresi uygulama
+el.video.apply_filter_to_video(
+    "ornek_video.mp4",
+    "bulanik_video.mp4",
+    filter_type="blur",
+    kernel_size=15,
+    blur_type="gaussian"
+)
+
+# Videoda hareket algılama
+hareket_bilgileri = el.video.detect_motion(
+    "ornek_video.mp4",
+    "hareket_algilama.mp4",  # Hareketlerin belirtildiği çıktı videosu
+    sensitivity=25.0,
+    min_area=500
+)
+
+for hareket in hareket_bilgileri:
+    print(f"Hareket algılandı: {hareket['timestamp_formatted']}")
+
+# Videoya metin ekleme
+el.video.add_text_to_video(
+    "ornek_video.mp4",
+    "metin_video.mp4",
+    text="Elan Video İşleme",
+    position=(50, 50),
+    font_scale=1.0,
+    color=(0, 255, 0),  # Yeşil
+    thickness=2
+)
+
+# Video hızını değiştirme
+el.video.speed_change(
+    "ornek_video.mp4",
+    "hizli_video.mp4",
+    speed_factor=2.0  # 2 kat hızlı
+)
+el.video.speed_change(
+    "ornek_video.mp4",
+    "yavas_video.mp4",
+    speed_factor=0.5  # 2 kat yavaş
+)
+
+# Birden fazla videoyu birleştirme
+el.video.combine_videos(
+    ["video1.mp4", "video2.mp4", "video3.mp4"],
+    "birlesik_video.mp4",
+    transition_frames=15  # 15 karelik yumuşak geçiş
+)
+```
+
+### Video İşleme Senaryoları
+
+#### Senaryo 1: Video Düzenleme İşlemi
+
+```python
+from elan import elan
+import os
+
+el = elan()
+
+# Video düzenleme projesi
+kaynak_video = "ham_video.mp4"
+sonuc_klasoru = "video_projesi"
+os.makedirs(sonuc_klasoru, exist_ok=True)
+
+# 1. Video bilgilerini al
+video_bilgisi = el.video.get_video_info(kaynak_video)
+print(f"İşlenen video: {video_bilgisi['duration_formatted']} süre, {video_bilgisi['width']}x{video_bilgisi['height']} çözünürlük")
+
+# 2. Videoyu parçalara ayır
+bol1 = os.path.join(sonuc_klasoru, "bolum1.mp4")
+bol2 = os.path.join(sonuc_klasoru, "bolum2.mp4")
+bol3 = os.path.join(sonuc_klasoru, "bolum3.mp4")
+
+# İlk 10 saniye
+el.video.trim_video(kaynak_video, bol1, 0, 10)
+
+# 15-25 saniye arası
+el.video.trim_video(kaynak_video, bol2, 15, 25)
+
+# 30-40 saniye arası
+el.video.trim_video(kaynak_video, bol3, 30, 40)
+
+# 3. Parçalara efekt uygula
+efektli_bol1 = os.path.join(sonuc_klasoru, "efekt_bolum1.mp4")
+efektli_bol2 = os.path.join(sonuc_klasoru, "efekt_bolum2.mp4")
+efektli_bol3 = os.path.join(sonuc_klasoru, "efekt_bolum3.mp4")
+
+# Birinci bölüme gri filtre
+el.video.apply_filter_to_video(bol1, efektli_bol1, "grayscale")
+
+# İkinci bölüme sepya filtre
+el.video.apply_filter_to_video(bol2, efektli_bol2, "sepia")
+
+# Üçüncü bölüme negatif filtre
+el.video.apply_filter_to_video(bol3, efektli_bol3, "negative")
+
+# 4. Efektli parçaları birleştir
+sonuc_video = os.path.join(sonuc_klasoru, "sonuc_video.mp4")
+el.video.combine_videos(
+    [efektli_bol1, efektli_bol2, efektli_bol3],
+    sonuc_video,
+    transition_frames=10
+)
+
+# 5. Son videoya metin ekle
+son_video = os.path.join(sonuc_klasoru, "final_video.mp4")
+el.video.add_text_to_video(
+    sonuc_video,
+    son_video,
+    text="Elan ile düzenlenmiştir",
+    position=(20, 30),
+    font_scale=0.8,
+    color=(0, 255, 255)  # Sarı
+)
+
+print(f"Video düzenleme tamamlandı: {son_video}")
+```
+
+#### Senaryo 2: Hareket Algılama ve Zaman Atlamalı Video
+
+```python
+from elan import elan
+import os
+import datetime
+
+el = elan()
+
+# Hareket algılama ve zaman atlamalı video oluşturma
+kaynak_video = "guvenlik_kamerasi.mp4"
+sonuc_klasoru = "hareket_analizi"
+os.makedirs(sonuc_klasoru, exist_ok=True)
+
+# 1. Videoda hareket algılama
+hareket_dosyasi = os.path.join(sonuc_klasoru, "hareket_video.mp4")
+hareketler = el.video.detect_motion(
+    kaynak_video,
+    hareket_dosyasi,
+    sensitivity=20.0,
+    min_area=300
+)
+
+print(f"Toplam {len(hareketler)} hareket tespit edildi")
+
+# 2. Hareket olan kısımları ayıkla
+hareket_parcalari = []
+if hareketler:
+    video_bilgisi = el.video.get_video_info(kaynak_video)
+    fps = video_bilgisi['fps']
+    
+    for i, hareket in enumerate(hareketler):
+        # Hareket başlangıcından 2 saniye öncesi ve 3 saniye sonrasını al
+        baslangic = max(0, hareket['timestamp'] - 2)
+        bitis = min(video_bilgisi['duration'], hareket['timestamp'] + 3)
+        
+        # Bu parçayı video olarak çıkart
+        parca_dosya = os.path.join(sonuc_klasoru, f"hareket_{i+1:03d}.mp4")
+        el.video.trim_video(kaynak_video, parca_dosya, baslangic, bitis)
+        hareket_parcalari.append(parca_dosya)
+        
+        print(f"Hareket {i+1}: {hareket['timestamp_formatted']} - alan: {hareket['max_area']:.0f} piksel")
+
+# 3. Hareket parçalarını birleştir ve tarih bilgisi ekle
+if hareket_parcalari:
+    ozet_video = os.path.join(sonuc_klasoru, "ozet_video.mp4")
+    el.video.combine_videos(hareket_parcalari, ozet_video, transition_frames=5)
+    
+    final_video = os.path.join(sonuc_klasoru, "final_hareket_ozeti.mp4")
+    tarih = datetime.datetime.now().strftime("%d.%m.%Y")
+    el.video.add_text_to_video(
+        ozet_video,
+        final_video,
+        text=f"Hareket Özeti - {tarih}",
+        position=(20, 30),
+        font_scale=1.0,
+        color=(0, 0, 255)  # Kırmızı
+    )
+    
+    print(f"Hareket özet videosu oluşturuldu: {final_video}")
+else:
+    print("Hareket tespit edilemedi veya dosyalar oluşturulamadı")
+```
+
 ## Örnek Kullanım Senaryoları
 
 ### Senaryo 1: Metinsel İşlemler

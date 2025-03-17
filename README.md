@@ -849,6 +849,26 @@ print("Görüntü işleme tamamlandı!")
 
 ## Sorun Giderme
 
+### Test Görüntü İşleme Aracı Kullanımı
+
+Elan kütüphanesinin görüntü işleme özelliklerini test etmek için `test_image_processing.py` aracını kullanabilirsiniz:
+
+```bash
+python test_image_processing.py resim.jpg
+```
+
+Bu komut, belirtilen görüntü dosyası üzerinde çeşitli görüntü işleme tekniklerini uygular ve sonuçları `sonuclar` klasörüne kaydeder:
+
+- Gri tonlama dönüşümü
+- Kenar algılama
+- Bulanıklaştırma
+- Karikatür efekti
+- Sepya efekti
+- 45 derece döndürme
+- Yeniden boyutlandırma (800x600)
+
+Tüm sonuçlar program tarafından otomatik olarak oluşturulan `sonuclar` klasörüne kaydedilir, böylece orijinal görüntünüz değişmeden kalır.
+
 ### Sık Karşılaşılan Hatalar
 
 **ImportError: No module named 'elan'**  
@@ -905,4 +925,71 @@ Herhangi bir soru, öneri veya geri bildirim için:
 - E-posta: efekan8190nefesogeu@gmail.com
 
 ### Powered By Efekan Nefesoğlu
+
+### Yüz Algılama ve İşaretleme
+
+Elan kütüphanesi, görüntülerdeki yüzleri otomatik olarak algılayıp işaretleyebilir. Bu özellik için geliştirilmiş parametreler sayesinde farklı senaryolara ve ihtiyaçlara göre ayarlama yapabilirsiniz:
+
+```python
+from elan import elan
+
+el = elan()
+
+# Temel yüz algılama
+image_with_faces, faces = el.image.detect_faces("fotograf.jpg")
+print(f"Tespit edilen yüz sayısı: {len(faces)}")
+
+# Sonucu kaydetme
+el.image.save_image(image_with_faces, "yuzler_isareti.jpg")
+
+# Özelleştirilmiş yüz algılama
+# - Yeşil renkli dikdörtgenler
+# - Daha kalın çizgiler (3 piksel)
+# - Daha hassas algılama için düşük ölçekleme faktörü
+# - Yanlış pozitifleri azaltmak için yüksek minNeighbors değeri
+image_custom, faces = el.image.detect_faces(
+    "fotograf.jpg",
+    rectangle_color=(0, 255, 0),  # Yeşil (BGR formatında)
+    rectangle_thickness=3,        # Kalın çizgi
+    scale_factor=1.05,            # Daha hassas algılama
+    min_neighbors=6,              # Daha az yanlış pozitif
+    min_size=(50, 50)             # Minimum yüz boyutu
+)
+
+# Sonucu kaydetme
+el.image.save_image(image_custom, "hassas_yuz_algilama.jpg")
+```
+
+#### Yüz Algılama Test Aracı
+
+Elan kütüphanesinin yüz algılama özelliklerini test etmek için `test_face_detection.py` aracını kullanabilirsiniz:
+
+```bash
+python test_face_detection.py fotograf.jpg
+```
+
+Bu komut, belirtilen görüntü üzerinde farklı ayarlarla yüz algılama işlemi yapar ve sonuçları `face_detection_results` klasörüne kaydeder:
+
+1. Varsayılan ayarlarla yüz algılama
+2. Kırmızı dikdörtgenlerle yüz algılama
+3. Yeşil ve kalın dikdörtgenlerle yüz algılama
+4. Hassas ayarlarla yüz algılama (daha az yanlış pozitif)
+
+#### Yüz Algılama Parametreleri
+
+| Parametre | Açıklama | Varsayılan Değer |
+|-----------|----------|------------------|
+| draw_rectangles | Yüzlerin etrafına dikdörtgen çizilip çizilmeyeceği | True |
+| rectangle_color | Dikdörtgen rengi (BGR formatında) | (0, 0, 255) - Kırmızı |
+| rectangle_thickness | Dikdörtgen çizgi kalınlığı | 2 piksel |
+| scale_factor | Her görüntü ölçeği için ne kadar küçülteceğini belirten faktör | 1.1 |
+| min_neighbors | Yüz kabul edilmesi için gerekli komşu sayısı | 4 |
+| min_size | Tespit edilebilecek minimum yüz boyutu | (30, 30) piksel |
+
+#### Yüz Algılama İpuçları
+
+- Daha iyi sonuçlar için iyi aydınlatılmış görüntüler kullanın
+- `scale_factor` değerini düşürerek (örn. 1.05) daha hassas algılama yapabilirsiniz
+- `min_neighbors` değerini artırarak (örn. 6-8) yanlış pozitifleri azaltabilirsiniz
+- Daha büyük `min_size` değeri, küçük yüzleri görmezden gelecek ama performansı artıracaktır
 

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="elan",  # PyPI'de görünecek paket adı
-    version="0.2.7",  # Büyük özellik eklendiği için versiyon numarasını artırıyoruz
+    version="0.2.8",  # Büyük özellik eklendiği için versiyon numarasını artırıyoruz
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
     install_requires=[

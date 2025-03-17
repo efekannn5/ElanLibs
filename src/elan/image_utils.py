@@ -269,12 +269,19 @@ class image_utils:
         
         return self._save_result(image, output_path)
     
-    def detect_faces(self, image_input, draw_rectangles=True, output_path=None):
+    def detect_faces(self, image_input, draw_rectangles=True, rectangle_color=(0, 0, 255), 
+                     rectangle_thickness=2, scale_factor=1.1, min_neighbors=4, 
+                     min_size=(30, 30), output_path=None):
         """Görüntüdeki yüzleri tespit et
         
         Args:
             image_input: Görüntü dosya yolu veya numpy dizisi
             draw_rectangles: Yüzlerin etrafına dikdörtgen çiz
+            rectangle_color: Dikdörtgen rengi (B, G, R) formatında, varsayılan kırmızı
+            rectangle_thickness: Dikdörtgen çizgi kalınlığı
+            scale_factor: Her görüntü ölçeği için ne kadar küçülteceğini belirten faktör
+            min_neighbors: Yüz kabul edilmesi için gerekli komşu sayısı (yüksek değer = daha az yanlış pozitif)
+            min_size: Tespit edilebilecek minimum yüz boyutu
             output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
             
         Returns:
@@ -288,11 +295,21 @@ class image_utils:
         face_cascade = cv2.CascadeClassifier(face_cascade_path)
         
         # Yüzleri tespit et
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        faces = face_cascade.detectMultiScale(
+            gray, 
+            scaleFactor=scale_factor, 
+            minNeighbors=min_neighbors,
+            minSize=min_size
+        )
         
         if draw_rectangles and len(faces) > 0:
             for (x, y, w, h) in faces:
-                cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                cv2.rectangle(image, (x, y), (x+w, y+h), rectangle_color, rectangle_thickness)
+                
+                # İsteğe bağlı olarak yüz sayısını da gösterebiliriz
+                label = f"Yüz"
+                cv2.putText(image, label, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 
+                            0.5, rectangle_color, 1, cv2.LINE_AA)
         
         if output_path:
             cv2.imwrite(output_path, image)

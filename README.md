@@ -25,7 +25,31 @@ Elan kütüphanesini pip kullanarak kurabilirsiniz:
 pip install elan
 ```
 
-Bu komut, Elan kütüphanesinin tüm bağımlılıklarıyla birlikte kurulumunu dener. Bazı kütüphaneler (özellikle dlib ve face_recognition) platformunuza bağlı olarak ek gereksinimler gerektirebilir. Kurulum sırasında bu kütüphanelerin yüklenmesinde sorun yaşanırsa, Elan temel özellikleriyle çalışmaya devam eder ve eksik özelliklerle ilgili uyarılar verir.
+Bu komut sadece Elan'ın temel özelliklerini (matematik, string, liste işlemleri) kurar.
+
+### Modüler Kurulum
+
+Elan kütüphanesi modüler bir yapıda tasarlanmıştır. İhtiyacınıza göre sadece belirli özellikleri kurabilirsiniz:
+
+1. **Temel Kurulum** (Matematik, String, Liste işlemleri):
+   ```
+   pip install elan
+   ```
+
+2. **Görüntü İşleme Özellikleri** (OpenCV ile görüntü düzenleme):
+   ```
+   pip install elan[image]
+   ```
+
+3. **Yüz Algılama Özellikleri** (dlib, face_recognition ve mediapipe ile):
+   ```
+   pip install elan[face]
+   ```
+
+4. **Tam Kurulum** (Tüm özellikleri içerir):
+   ```
+   pip install elan[all]
+   ```
 
 #### Windows Kullanıcıları için Önemli Not
 
@@ -35,6 +59,7 @@ Windows platformunda dlib ve face_recognition kurulumunda sorun yaşıyorsanız,
 ```
 pip install https://github.com/jloh02/dlib/releases/download/v19.22/dlib-19.22.99-cp310-cp310-win_amd64.whl
 pip install face_recognition
+pip install elan[face]
 ```
 
 **2. Manuel Derleme Yöntemi:**
@@ -42,20 +67,32 @@ pip install face_recognition
 - [Visual Studio Community](https://visualstudio.microsoft.com/downloads/) (C++ geliştirme araçlarını seçin) indirin ve kurun
 - Daha sonra terminalde: `pip install dlib`
 - Ardından: `pip install face_recognition`
+- Son olarak: `pip install elan[face]`
 
-### Kurulum Durumunu Kontrol Etme
+### Kurulum Doğrulama
 
-Kurulumu ve mevcut modülleri kontrol etmek için:
+Kurulumu doğrulamak için:
 
 ```python
 import elan
-from elan import print_module_status
 
-# Modül durumlarını göster
-print_module_status()
+# Temel özellikleri test et
+print(elan.math.add(5, 3))  # 8 yazmalı
+
+# Görüntü işleme modülünü kontrol et
+try:
+    img = elan.image.load("resim.jpg")
+    print("Görüntü işleme özellikleri çalışıyor!")
+except ImportError:
+    print("Görüntü işleme özellikleri kurulu değil - pip install elan[image]")
+
+# Yüz algılama modülünü kontrol et
+try:
+    yuzler = elan.image.detect_faces("resim.jpg")
+    print(f"{len(yuzler)} yüz bulundu!")
+except ImportError:
+    print("Yüz algılama özellikleri kurulu değil - pip install elan[face]")
 ```
-
-Bu komut, hangi modüllerin başarıyla yüklendiğini ve hangilerinin eksik olduğunu gösterecektir.
 
 ### Kurulum Sorunları ve Çözümleri
 
@@ -1099,44 +1136,31 @@ pip install mediapipe
 
 ## Gelişmiş Kullanım
 
-### Modüler Yapı
+### Modüler Yapı Kullanımı
 
-Elan kütüphanesi, modüler bir yapıda tasarlanmıştır. Bazı özellikler ilgili bağımlılık yüklenemezse otomatik olarak devre dışı kalır, ancak diğer özellikler çalışmaya devam eder:
+Elan kütüphanesi modüler yapısı sayesinde, sadece ihtiyacınız olan bileşenleri kurmanıza olanak tanır. 
+Örnek kullanım:
 
 ```python
 import elan
 
-# Temel özellikler her zaman kullanılabilir
+# Temel özellikleri kullan
 sonuc = elan.math.add(5, 3)
-reversed_text = elan.string.reverse("Merhaba")
+metin = elan.string.reverse("Merhaba")
 
-# İsteğe bağlı modülleri kontrol ederek kullanın
-if elan.image is not None:
-    # Görüntü işleme özellikleri kullanılabilir
-    img = elan.image.load("resim.jpg")
-    gray_img = elan.image.convert_grayscale(img)
-else:
-    print("Görüntü işleme özellikleri yüklenmemiş!")
+# Görüntü işleme özellikleri - elan[image] kurulumu gerektirir
+try:
+    goruntu = elan.image.load("foto.jpg")
+    gri_tonlu = elan.image.to_grayscale(goruntu)
+    elan.image.save_image(gri_tonlu, "gri_foto.jpg")
+except ImportError:
+    print("Görüntü işleme için: pip install elan[image]")
 
-# Çalışan ve çalışmayan modülleri görmek için
-from elan import print_module_status
-print_module_status()
-```
-
-### Eksik Modüllerle Çalışma
-
-Elan, kurulumda bazı bağımlılıklar yüklenemese bile çalışmaya devam eder. Bu özellik sayesinde:
-
-1. Tüm kütüphanenin kurulumu tek bir komutla yapılabilir: `pip install elan`
-2. Bazı modüller kurulurken hata oluşsa bile diğer özellikler kullanılabilir kalır
-3. Kütüphane, hangi özelliklerin kullanılabilir olduğunu bildirir
-
-Modüller hakkında ayrıntılı bilgi almak için:
-
-```python
-from elan import check_modules
-
-# Tüm modüllerin durumunu alın
-modules = check_modules()
-print(modules)
+# Yüz algılama özellikleri - elan[face] kurulumu gerektirir
+try:
+    goruntu, yuzler = elan.image.detect_faces("foto.jpg")
+    print(f"{len(yuzler)} yüz bulundu!")
+    elan.image.save_image(goruntu, "yuz_algilama_sonuc.jpg")
+except ImportError:
+    print("Yüz algılama için: pip install elan[face]")
 ```

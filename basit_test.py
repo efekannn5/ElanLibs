@@ -12,8 +12,12 @@
 
 Bu test aracı, bir fotoğraftaki yüzleri algılar ve sonuçları kaydeder.
 Kullanım: python basit_test.py resim.jpg
+
+Modüler kurulum gereklidir:
+- Görüntü işleme için: pip install elan[image]
+- Yüz algılama için: pip install elan[face]
+- Tüm özellikler için: pip install elan[all]
 """
-from elan import elan
 import os
 import sys
 import argparse
@@ -37,7 +41,7 @@ def main():
     
     # Elan kütüphanesini import et
     try:
-        
+        from elan import elan, kurulum_bilgisi
         e = elan()
         print("✓ Elan kütüphanesi yüklendi")
     except ImportError as ex:
@@ -45,10 +49,17 @@ def main():
         print("  Kurulum için: pip install elan")
         sys.exit(1)
     
+    # Kurulum bilgisini göster
+    kurulum_bilgisi()
+    
     # Görüntüyü yükle
     try:
         img = e.image.load(image_path)
         print(f"✓ Görüntü yüklendi: {img.shape[1]}x{img.shape[0]} piksel")
+    except ImportError:
+        print("✗ Görüntü işleme modülü yüklenmemiş!")
+        print("  Yükleme komutu: pip install elan[image]")
+        sys.exit(1)
     except Exception as ex:
         print(f"✗ Görüntü yüklenemedi: {ex}")
         sys.exit(1)
@@ -71,6 +82,18 @@ def main():
     
     # 3. Yüz algılama (mevcut yöntemleri dene)
     print("\n--- Yüz Algılama Sonuçları ---")
+    
+    # Yüz algılama modüllerini kontrol et
+    try:
+        # Bu çağrı face_recognition modülü yoksa hata verecektir
+        import face_recognition
+        has_face_modules = True
+    except ImportError:
+        print("\n✗ Yüz algılama modülleri yüklenmemiş!")
+        print("  Yükleme komutu: pip install elan[face]")
+        print("  Not: Windows kullanıcıları için özel kurulum gerekebilir.")
+        print("  README.md dosyasındaki kurulum talimatlarına bakın.")
+        sys.exit(1)
     
     # Yüz algılama yöntemleri
     methods = ['opencv', 'dlib', 'mediapipe']

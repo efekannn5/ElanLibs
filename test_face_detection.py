@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import elan
 import os
 import sys
 import argparse
@@ -20,7 +20,7 @@ def main():
     
     # Elan kütüphanesini import et
     try:
-        import elan
+        
         print("✓ Elan kütüphanesi başarıyla yüklendi.")
     except ImportError as e:
         print(f"✗ Elan kütüphanesi yüklenemedi: {e}")
@@ -95,7 +95,7 @@ def main():
         print(f"Test sırasında hata oluştu: {e}")
         import traceback
         print(traceback.format_exc())
-        sys.exit(1)
+        sys.exit(1) 
 
 if __name__ == "__main__":
     main() 

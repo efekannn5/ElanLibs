@@ -19,18 +19,60 @@ Elan'ın amacı, tekerleği yeniden icat etmek yerine, yaygın kullanılan işle
 
 ## Kurulum
 
-Elan kütüphanesi PyPI üzerinden kolayca kurulabilir:
+Elan kütüphanesini pip kullanarak kurabilirsiniz:
 
-```bash
+```
 pip install elan
 ```
 
-### Bağımlılıklar
+Bu komut, Elan kütüphanesinin tüm bağımlılıklarıyla birlikte kurulumunu dener. Bazı kütüphaneler (özellikle dlib ve face_recognition) platformunuza bağlı olarak ek gereksinimler gerektirebilir. Kurulum sırasında bu kütüphanelerin yüklenmesinde sorun yaşanırsa, Elan temel özellikleriyle çalışmaya devam eder ve eksik özelliklerle ilgili uyarılar verir.
 
-Elan kütüphanesinin düzgün çalışması için aşağıdaki gereksinimler otomatik olarak kurulur:
+#### Windows Kullanıcıları için Önemli Not
 
-- Python 3.6 veya üzeri
-- OpenCV (görüntü işleme işlevleri için)
+Windows platformunda dlib ve face_recognition kurulumunda sorun yaşıyorsanız, iki kurulum yöntemi sunuyoruz:
+
+**1. Kolay Yöntem (Önerilen):** Önceden derlenmiş binary wheel kullanımı:
+```
+pip install https://github.com/jloh02/dlib/releases/download/v19.22/dlib-19.22.99-cp310-cp310-win_amd64.whl
+pip install face_recognition
+```
+
+**2. Manuel Derleme Yöntemi:**
+- [CMake](https://cmake.org/download/) indirin ve kurun
+- [Visual Studio Community](https://visualstudio.microsoft.com/downloads/) (C++ geliştirme araçlarını seçin) indirin ve kurun
+- Daha sonra terminalde: `pip install dlib`
+- Ardından: `pip install face_recognition`
+
+### Kurulum Durumunu Kontrol Etme
+
+Kurulumu ve mevcut modülleri kontrol etmek için:
+
+```python
+import elan
+from elan import print_module_status
+
+# Modül durumlarını göster
+print_module_status()
+```
+
+Bu komut, hangi modüllerin başarıyla yüklendiğini ve hangilerinin eksik olduğunu gösterecektir.
+
+### Kurulum Sorunları ve Çözümleri
+
+Kurulum sırasında sorunlarla karşılaşırsanız:
+
+1. **OpenCV (Görüntü İşleme) Sorunları:**
+   ```
+   pip install --upgrade opencv-python
+   ```
+
+2. **Dlib / Face Recognition Sorunları:**
+   - Windows: Yukarıdaki özel kurulum talimatlarını izleyin
+   - Linux/macOS: `sudo apt-get install -y build-essential cmake` veya `brew install cmake`
+
+3. **Eksik Özellikler:**
+   - Elan, eksik modüller için otomatik olarak uyarı verecektir
+   - İlgili modülü `pip install elan[image]` veya `pip install elan[face]` ile kurabilirsiniz
 
 ## Kullanım
 
@@ -1055,3 +1097,46 @@ pip install face_recognition
 pip install mediapipe
 ```
 
+## Gelişmiş Kullanım
+
+### Modüler Yapı
+
+Elan kütüphanesi, modüler bir yapıda tasarlanmıştır. Bazı özellikler ilgili bağımlılık yüklenemezse otomatik olarak devre dışı kalır, ancak diğer özellikler çalışmaya devam eder:
+
+```python
+import elan
+
+# Temel özellikler her zaman kullanılabilir
+sonuc = elan.math.add(5, 3)
+reversed_text = elan.string.reverse("Merhaba")
+
+# İsteğe bağlı modülleri kontrol ederek kullanın
+if elan.image is not None:
+    # Görüntü işleme özellikleri kullanılabilir
+    img = elan.image.load("resim.jpg")
+    gray_img = elan.image.convert_grayscale(img)
+else:
+    print("Görüntü işleme özellikleri yüklenmemiş!")
+
+# Çalışan ve çalışmayan modülleri görmek için
+from elan import print_module_status
+print_module_status()
+```
+
+### Eksik Modüllerle Çalışma
+
+Elan, kurulumda bazı bağımlılıklar yüklenemese bile çalışmaya devam eder. Bu özellik sayesinde:
+
+1. Tüm kütüphanenin kurulumu tek bir komutla yapılabilir: `pip install elan`
+2. Bazı modüller kurulurken hata oluşsa bile diğer özellikler kullanılabilir kalır
+3. Kütüphane, hangi özelliklerin kullanılabilir olduğunu bildirir
+
+Modüller hakkında ayrıntılı bilgi almak için:
+
+```python
+from elan import check_modules
+
+# Tüm modüllerin durumunu alın
+modules = check_modules()
+print(modules)
+```

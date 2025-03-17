@@ -336,6 +336,13 @@ class image_utils:
                 # Face Recognition (DLIB) ile yüz algılama dene
                 if method == 'dlib':
                     try:
+                        # Önce dlib'i kontrol edelim
+                        try:
+                            import dlib
+                        except ImportError:
+                            raise ImportError("'dlib' kütüphanesi yüklenemedi. Kurulum için: pip install dlib>=19.22.0")
+                            
+                        # Şimdi face_recognition'ı kullanalım
                         import face_recognition
                         # RGB'ye dönüştür (face_recognition kütüphanesi RGB formatını kullanır)
                         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -351,7 +358,7 @@ class image_utils:
                                 cv2.putText(image, f"Yüz", (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 
                                             0.5, rectangle_color, 1, cv2.LINE_AA)
                     except (ImportError, Exception) as e:
-                        print(f"DLIB kullanılamadı, OpenCV'ye geçiliyor: {e}")
+                        print(f"DLIB/face_recognition kullanılamadı, OpenCV'ye geçiliyor: {e}")
                         # Face Recognition yüklenemezse veya hata verirse OpenCV'ye geçiş yap
                         method = 'opencv'
                 
@@ -426,81 +433,123 @@ class image_utils:
         Returns:
             output_path verilmişse True, aksi halde (işlenmiş görüntü, tanıma sonuçları)
         """
+        # Önce dlib'i kontrol edelim
+        try:
+            import dlib
+        except ImportError:
+            raise ImportError("'dlib' kütüphanesi yüklenemedi. Kurulum için: pip install dlib>=19.22.0")
+            
+        # Şimdi face_recognition'ı yükleyelim
         try:
             import face_recognition
             import os
         except ImportError:
             raise ImportError("Bu fonksiyon için 'face_recognition' kütüphanesi gereklidir. "
-                             "Yüklemek için: pip install face_recognition")
+                             "Yüklemek için: pip install face_recognition>=1.3.0")
         
-        image = self._read_image(image_input)
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        
-        # Bilinen yüzleri yükle
-        known_face_encodings = []
-        known_face_names = []
-        
-        if not os.path.exists(known_faces_dir):
-            raise FileNotFoundError(f"Bilinen yüzler klasörü bulunamadı: {known_faces_dir}")
-        
-        for person_name in os.listdir(known_faces_dir):
-            person_dir = os.path.join(known_faces_dir, person_name)
-            if os.path.isdir(person_dir):
-                for image_name in os.listdir(person_dir):
-                    if image_name.lower().endswith(('.png', '.jpg', '.jpeg')):
-                        image_path = os.path.join(person_dir, image_name)
-                        face_image = face_recognition.load_image_file(image_path)
-                        try:
-                            face_encoding = face_recognition.face_encodings(face_image)[0]
-                            known_face_encodings.append(face_encoding)
-                            known_face_names.append(person_name)
-                        except IndexError:
-                            print(f"Uyarı: {image_path} dosyasında yüz bulunamadı, atlanıyor.")
-        
-        # Test görüntüsündeki yüzleri tespit et
-        face_locations = face_recognition.face_locations(rgb_image)
-        face_encodings = face_recognition.face_encodings(rgb_image, face_locations)
-        
-        # Tanıma sonuçlarını sakla
-        face_names = []
-        recognition_results = []
-        
-        for face_encoding, (top, right, bottom, left) in zip(face_encodings, face_locations):
-            # Bilinen yüzlerle karşılaştır
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=tolerance)
-            name = "Bilinmeyen"
-            confidence = 0.0
+        try:
+            image = self._read_image(image_input)
+            rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             
-            # En iyi eşleşmeyi bul
-            if True in matches:
-                # Eşleşen tüm yüzleri bul
-                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-                best_match_index = np.argmin(face_distances)
-                if matches[best_match_index]:
-                    name = known_face_names[best_match_index]
-                    confidence = 1.0 - face_distances[best_match_index]
+            # Bilinen yüzleri yükle
+            known_face_encodings = []
+            known_face_names = []
             
-            face_names.append(name)
-            recognition_results.append({
-                'name': name,
-                'location': (left, top, right - left, bottom - top),
-                'confidence': confidence
-            })
+            if not os.path.exists(known_faces_dir):
+                raise FileNotFoundError(f"Bilinen yüzler klasörü bulunamadı: {known_faces_dir}")
             
-            if draw_labels:
-                # Yüz etrafına dikdörtgen ve etiket çiz
-                cv2.rectangle(image, (left, top), (right, bottom), label_color, 2)
-                confidence_text = f"{confidence:.2f}" if confidence > 0 else ""
-                label = f"{name} {confidence_text}"
-                y = top - 10 if top - 10 > 10 else top + 10
-                cv2.putText(image, label, (left, y), cv2.FONT_HERSHEY_SIMPLEX, 
-                           0.5, label_color, 1, cv2.LINE_AA)
-        
-        if output_path:
-            cv2.imwrite(output_path, image)
-            return recognition_results
-        else:
-            return image, recognition_results
+            person_count = 0
+            for person_name in os.listdir(known_faces_dir):
+                person_dir = os.path.join(known_faces_dir, person_name)
+                if os.path.isdir(person_dir):
+                    person_count += 1
+                    image_count = 0
+                    for image_name in os.listdir(person_dir):
+                        if image_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                            image_count += 1
+                            image_path = os.path.join(person_dir, image_name)
+                            face_image = face_recognition.load_image_file(image_path)
+                            try:
+                                face_encoding = face_recognition.face_encodings(face_image)[0]
+                                known_face_encodings.append(face_encoding)
+                                known_face_names.append(person_name)
+                            except IndexError:
+                                print(f"Uyarı: {image_path} dosyasında yüz bulunamadı, atlanıyor.")
+            
+            if person_count == 0:
+                print(f"Uyarı: {known_faces_dir} klasöründe hiçbir kişi bulunamadı.")
+                
+            if not known_face_encodings:
+                raise ValueError(f"Bilinen yüz veritabanında hiçbir yüz bulunamadı. Lütfen {known_faces_dir} dizinini kontrol edin.")
+                
+            print(f"Bilgi: {len(known_face_encodings)} yüz, {person_count} kişi veritabanından yüklendi.")
+            
+            # Test görüntüsündeki yüzleri tespit et
+            face_locations = face_recognition.face_locations(rgb_image)
+            
+            if not face_locations:
+                print(f"Uyarı: Verilen görüntüde hiçbir yüz tespit edilemedi.")
+                if output_path:
+                    cv2.imwrite(output_path, image)
+                    return []
+                else:
+                    return image, []
+            
+            face_encodings = face_recognition.face_encodings(rgb_image, face_locations)
+            
+            # Tanıma sonuçlarını sakla
+            face_names = []
+            recognition_results = []
+            
+            for face_encoding, (top, right, bottom, left) in zip(face_encodings, face_locations):
+                # Bilinen yüzlerle karşılaştır
+                matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=tolerance)
+                name = "Bilinmeyen"
+                confidence = 0.0
+                
+                # En iyi eşleşmeyi bul
+                if True in matches:
+                    # Eşleşen tüm yüzleri bul
+                    face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                    best_match_index = np.argmin(face_distances)
+                    if matches[best_match_index]:
+                        name = known_face_names[best_match_index]
+                        confidence = 1.0 - face_distances[best_match_index]
+                
+                face_names.append(name)
+                recognition_results.append({
+                    'name': name,
+                    'location': (left, top, right - left, bottom - top),
+                    'confidence': confidence
+                })
+                
+                if draw_labels:
+                    # Yüz etrafına dikdörtgen ve etiket çiz
+                    cv2.rectangle(image, (left, top), (right, bottom), label_color, 2)
+                    confidence_text = f"{confidence:.2f}" if confidence > 0 else ""
+                    label = f"{name} {confidence_text}"
+                    y = top - 10 if top - 10 > 10 else top + 10
+                    cv2.putText(image, label, (left, y), cv2.FONT_HERSHEY_SIMPLEX, 
+                               0.5, label_color, 1, cv2.LINE_AA)
+            
+            if output_path:
+                cv2.imwrite(output_path, image)
+                return recognition_results
+            else:
+                return image, recognition_results
+                
+        except Exception as e:
+            print(f"Yüz tanıma hatası: {e}")
+            # Hata olursa orijinal görüntüyü ve boş sonuç döndür
+            if output_path:
+                try:
+                    original_image = self._read_image(image_input)
+                    cv2.imwrite(output_path, original_image)
+                except:
+                    pass
+                return []
+            else:
+                return image_input if isinstance(image_input, np.ndarray) else np.zeros((100, 100, 3), dtype=np.uint8), []
     
     def apply_filter(self, image_input, filter_type, output_path=None):
         """Görüntüye filtre uygula

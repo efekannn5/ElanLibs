@@ -2,15 +2,19 @@ from setuptools import setup, find_packages
 
 setup(
     name="elan",  # PyPI'de görünecek paket adı
-    version="0.2.9",  # Önemli yeni özellikler eklendiği için versiyon numarasını artırıyoruz
+    version="0.3.0",  # Versiyon numarasını artırıyoruz
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
     install_requires=[
-        "opencv-python>=4.5.3",  # Görüntü işleme için OpenCV
-        "requests>=2.27.1",      # İnternet üzerinden kelime havuzu indirebilmek için
-        "face_recognition>=1.3.0",  # DLIB tabanlı yüz tanıma için
-        "mediapipe>=0.8.9",        # Google'ın modern yüz algılama ve yüz hatları tespiti için
-        "numpy>=1.20.0",          # Sayısal işlemler için
+        "numpy>=1.20.0",           # Temel sayısal işlemler için 
+        "requests>=2.27.1",        # İnternet üzerinden kelime havuzu indirebilmek için
+        "opencv-python>=4.5.3",    # Görüntü işleme için OpenCV
+        "dlib>=19.22.0",           # Yüz algılama için temel kütüphane
+        "face_recognition>=1.3.0", # DLIB tabanlı yüz tanıma için
+        "mediapipe>=0.8.9",        # Google'ın modern yüz algılama için
+        # İsteğe bağlı bağımlılıklar - kurulum sırasında hata verirse atlanabilir
+        # Bu bağımlılıkları burada listelemek, pip'in onları kurmasını sağlar
+        # Ancak kurulum başarısız olsa bile diğer paketler kurulacaktır
     ],
     author="Efekan Nefesoğlu",
     author_email="efekan8190nefesogeu@gmail.com",

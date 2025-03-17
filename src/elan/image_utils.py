@@ -269,30 +269,129 @@ class image_utils:
         
         return self._save_result(image, output_path)
     
-    def detect_faces(self, image_input, draw_rectangles=True, rectangle_color=(0, 0, 255), 
-                     rectangle_thickness=2, scale_factor=1.1, min_neighbors=4, 
-                     min_size=(30, 30), output_path=None):
+    def detect_faces(self, image_input, method='mediapipe', draw_rectangles=True, 
+                     rectangle_color=(0, 0, 255), rectangle_thickness=2, 
+                     scale_factor=1.1, min_neighbors=4, min_size=(30, 30),
+                     draw_landmarks=False, output_path=None):
         """Görüntüdeki yüzleri tespit et
         
         Args:
             image_input: Görüntü dosya yolu veya numpy dizisi
+            method: Kullanılacak yüz algılama yöntemi ('opencv', 'dlib', 'mediapipe')
             draw_rectangles: Yüzlerin etrafına dikdörtgen çiz
             rectangle_color: Dikdörtgen rengi (B, G, R) formatında, varsayılan kırmızı
             rectangle_thickness: Dikdörtgen çizgi kalınlığı
-            scale_factor: Her görüntü ölçeği için ne kadar küçülteceğini belirten faktör
-            min_neighbors: Yüz kabul edilmesi için gerekli komşu sayısı (yüksek değer = daha az yanlış pozitif)
-            min_size: Tespit edilebilecek minimum yüz boyutu
+            scale_factor: Her görüntü ölçeği için ne kadar küçülteceğini belirten faktör (sadece OpenCV için)
+            min_neighbors: Yüz kabul edilmesi için gerekli komşu sayısı (sadece OpenCV için)
+            min_size: Tespit edilebilecek minimum yüz boyutu (sadece OpenCV için)
+            draw_landmarks: MediaPipe ile yüz hatlarını çiz (sadece method='mediapipe' için)
             output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
             
         Returns:
             output_path verilmişse True, aksi halde (işlenmiş görüntü, yüz konumları)
         """
-        image = self._read_image(image_input)
+        try:
+            image = self._read_image(image_input)
+            original_image = image.copy()
+            
+            # Yüz tespiti için kullanılacak yöntemi seç
+            try:
+                # Varsayılan ve en iyi yöntem olarak MediaPipe'ı dene
+                if method == 'mediapipe' or method not in ['opencv', 'dlib', 'mediapipe']:
+                    try:
+                        import mediapipe as mp
+                        # MediaPipe Face Detection modülünü başlat
+                        mp_face_detection = mp.solutions.face_detection
+                        mp_drawing = mp.solutions.drawing_utils
+                        
+                        # RGB'ye dönüştür (MediaPipe RGB formatını kullanır)
+                        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        
+                        with mp_face_detection.FaceDetection(min_detection_confidence=0.5) as face_detection:
+                            results = face_detection.process(rgb_image)
+                            
+                            faces = []
+                            if results.detections:
+                                for detection in results.detections:
+                                    bboxC = detection.location_data.relative_bounding_box
+                                    ih, iw, _ = image.shape
+                                    x, y = int(bboxC.xmin * iw), int(bboxC.ymin * ih)
+                                    w, h = int(bboxC.width * iw), int(bboxC.height * ih)
+                                    faces.append((x, y, w, h))
+                                    
+                                    if draw_rectangles:
+                                        cv2.rectangle(image, (x, y), (x+w, y+h), rectangle_color, rectangle_thickness)
+                                        confidence = round(detection.score[0] * 100)
+                                        cv2.putText(image, f"Yüz {confidence}%", (x, y-10), 
+                                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, rectangle_color, 1, cv2.LINE_AA)
+                                    
+                                    # Yüz hatlarını çiz (isteğe bağlı)
+                                    if draw_landmarks:
+                                        mp_drawing.draw_detection(image, detection)
+                    except (ImportError, Exception) as e:
+                        print(f"MediaPipe kullanılamadı, alternatif yönteme geçiliyor: {e}")
+                        # MediaPipe yüklenemezse veya hata verirse face_recognition'a geçiş yap
+                        method = 'dlib'
+                
+                # Face Recognition (DLIB) ile yüz algılama dene
+                if method == 'dlib':
+                    try:
+                        import face_recognition
+                        # RGB'ye dönüştür (face_recognition kütüphanesi RGB formatını kullanır)
+                        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        
+                        # Yüz konumlarını tespit et
+                        face_locations = face_recognition.face_locations(rgb_image)
+                        faces = [(left, top, right - left, bottom - top) 
+                                for (top, right, bottom, left) in face_locations]
+                        
+                        if draw_rectangles and face_locations:
+                            for (top, right, bottom, left) in face_locations:
+                                cv2.rectangle(image, (left, top), (right, bottom), rectangle_color, rectangle_thickness)
+                                cv2.putText(image, f"Yüz", (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 
+                                            0.5, rectangle_color, 1, cv2.LINE_AA)
+                    except (ImportError, Exception) as e:
+                        print(f"DLIB kullanılamadı, OpenCV'ye geçiliyor: {e}")
+                        # Face Recognition yüklenemezse veya hata verirse OpenCV'ye geçiş yap
+                        method = 'opencv'
+                
+                # OpenCV ile yüz algılama (son çare olarak kullan)
+                if method == 'opencv':
+                    faces = self._detect_faces_opencv(image, scale_factor, min_neighbors, min_size)
+                    
+                    if draw_rectangles and len(faces) > 0:
+                        for (x, y, w, h) in faces:
+                            cv2.rectangle(image, (x, y), (x+w, y+h), rectangle_color, rectangle_thickness)
+                            cv2.putText(image, f"Yüz", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 
+                                        0.5, rectangle_color, 1, cv2.LINE_AA)
+                
+            except Exception as e:
+                print(f"Yüz algılama hatası: {e}")
+                # Hiçbir yöntem çalışmazsa boş sonuç döndür
+                faces = []
+            
+            if output_path:
+                cv2.imwrite(output_path, image)
+                return faces
+            else:
+                return image, faces
+                
+        except Exception as e:
+            print(f"Görüntü işleme hatası: {e}")
+            # Ciddi bir hata olursa orijinal görüntüyü ve boş liste döndür
+            return image_input if isinstance(image_input, np.ndarray) else np.zeros((100, 100, 3), dtype=np.uint8), []
+    
+    def _detect_faces_opencv(self, image, scale_factor=1.1, min_neighbors=4, min_size=(30, 30)):
+        """OpenCV ile yüz tespiti yapar"""
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
-        # Yüz tespiti için cascade classifier yükle
+        # Haar Cascade sınıflandırıcısını yükle
         face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
         face_cascade = cv2.CascadeClassifier(face_cascade_path)
+        
+        # Daha güvenilir bir tespit için, önceden LBP sınıflandırıcısı ile daraltılmış bölgeyi tara
+        eye_cascade_path = cv2.data.haarcascades + 'haarcascade_eye.xml'
+        eye_cascade = cv2.CascadeClassifier(eye_cascade_path)
         
         # Yüzleri tespit et
         faces = face_cascade.detectMultiScale(
@@ -302,20 +401,106 @@ class image_utils:
             minSize=min_size
         )
         
-        if draw_rectangles and len(faces) > 0:
-            for (x, y, w, h) in faces:
-                cv2.rectangle(image, (x, y), (x+w, y+h), rectangle_color, rectangle_thickness)
-                
-                # İsteğe bağlı olarak yüz sayısını da gösterebiliriz
-                label = f"Yüz"
-                cv2.putText(image, label, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 
-                            0.5, rectangle_color, 1, cv2.LINE_AA)
+        # Daha doğru tespitler için göz kontrolü yapabiliriz
+        verified_faces = []
+        for (x, y, w, h) in faces:
+            roi_gray = gray[y:y+h, x:x+w]
+            eyes = eye_cascade.detectMultiScale(roi_gray)
+            if len(eyes) >= 1:  # En az bir göz tespit edilirse
+                verified_faces.append((x, y, w, h))
+        
+        return verified_faces if verified_faces else faces
+    
+    def recognize_faces(self, image_input, known_faces_dir, tolerance=0.6, 
+                       draw_labels=True, label_color=(0, 255, 0), output_path=None):
+        """Yüzleri tanı ve isimlendir
+        
+        Args:
+            image_input: Görüntü dosya yolu veya numpy dizisi
+            known_faces_dir: Bilinen yüzler klasörü (Her kişi için ayrı bir klasör)
+            tolerance: Eşleşme eşiği (düşük değer = daha kesin eşleşme)
+            draw_labels: Tanınan yüzlere isim etiketi çiz
+            label_color: Etiket rengi (B, G, R) formatında
+            output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
+            
+        Returns:
+            output_path verilmişse True, aksi halde (işlenmiş görüntü, tanıma sonuçları)
+        """
+        try:
+            import face_recognition
+            import os
+        except ImportError:
+            raise ImportError("Bu fonksiyon için 'face_recognition' kütüphanesi gereklidir. "
+                             "Yüklemek için: pip install face_recognition")
+        
+        image = self._read_image(image_input)
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
+        # Bilinen yüzleri yükle
+        known_face_encodings = []
+        known_face_names = []
+        
+        if not os.path.exists(known_faces_dir):
+            raise FileNotFoundError(f"Bilinen yüzler klasörü bulunamadı: {known_faces_dir}")
+        
+        for person_name in os.listdir(known_faces_dir):
+            person_dir = os.path.join(known_faces_dir, person_name)
+            if os.path.isdir(person_dir):
+                for image_name in os.listdir(person_dir):
+                    if image_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                        image_path = os.path.join(person_dir, image_name)
+                        face_image = face_recognition.load_image_file(image_path)
+                        try:
+                            face_encoding = face_recognition.face_encodings(face_image)[0]
+                            known_face_encodings.append(face_encoding)
+                            known_face_names.append(person_name)
+                        except IndexError:
+                            print(f"Uyarı: {image_path} dosyasında yüz bulunamadı, atlanıyor.")
+        
+        # Test görüntüsündeki yüzleri tespit et
+        face_locations = face_recognition.face_locations(rgb_image)
+        face_encodings = face_recognition.face_encodings(rgb_image, face_locations)
+        
+        # Tanıma sonuçlarını sakla
+        face_names = []
+        recognition_results = []
+        
+        for face_encoding, (top, right, bottom, left) in zip(face_encodings, face_locations):
+            # Bilinen yüzlerle karşılaştır
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=tolerance)
+            name = "Bilinmeyen"
+            confidence = 0.0
+            
+            # En iyi eşleşmeyi bul
+            if True in matches:
+                # Eşleşen tüm yüzleri bul
+                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                if matches[best_match_index]:
+                    name = known_face_names[best_match_index]
+                    confidence = 1.0 - face_distances[best_match_index]
+            
+            face_names.append(name)
+            recognition_results.append({
+                'name': name,
+                'location': (left, top, right - left, bottom - top),
+                'confidence': confidence
+            })
+            
+            if draw_labels:
+                # Yüz etrafına dikdörtgen ve etiket çiz
+                cv2.rectangle(image, (left, top), (right, bottom), label_color, 2)
+                confidence_text = f"{confidence:.2f}" if confidence > 0 else ""
+                label = f"{name} {confidence_text}"
+                y = top - 10 if top - 10 > 10 else top + 10
+                cv2.putText(image, label, (left, y), cv2.FONT_HERSHEY_SIMPLEX, 
+                           0.5, label_color, 1, cv2.LINE_AA)
         
         if output_path:
             cv2.imwrite(output_path, image)
-            return faces
+            return recognition_results
         else:
-            return image, faces
+            return image, recognition_results
     
     def apply_filter(self, image_input, filter_type, output_path=None):
         """Görüntüye filtre uygula

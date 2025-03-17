@@ -926,70 +926,132 @@ Herhangi bir soru, öneri veya geri bildirim için:
 
 ### Powered By Efekan Nefesoğlu
 
-### Yüz Algılama ve İşaretleme
+### Yüz Algılama ve Tanıma
 
-Elan kütüphanesi, görüntülerdeki yüzleri otomatik olarak algılayıp işaretleyebilir. Bu özellik için geliştirilmiş parametreler sayesinde farklı senaryolara ve ihtiyaçlara göre ayarlama yapabilirsiniz:
+Elan kütüphanesi, görüntülerdeki yüzleri otomatik olarak algılayıp işaretleyebilir ve tanıyabilir. Üç farklı yüz algılama yöntemi sunar: OpenCV (hızlı), DLIB (doğru) ve MediaPipe (modern ve hassas).
+
+#### 1. Yüz Algılama
 
 ```python
 from elan import elan
 
 el = elan()
 
-# Temel yüz algılama
-image_with_faces, faces = el.image.detect_faces("fotograf.jpg")
-print(f"Tespit edilen yüz sayısı: {len(faces)}")
-
-# Sonucu kaydetme
-el.image.save_image(image_with_faces, "yuzler_isareti.jpg")
-
-# Özelleştirilmiş yüz algılama
-# - Yeşil renkli dikdörtgenler
-# - Daha kalın çizgiler (3 piksel)
-# - Daha hassas algılama için düşük ölçekleme faktörü
-# - Yanlış pozitifleri azaltmak için yüksek minNeighbors değeri
-image_custom, faces = el.image.detect_faces(
+# 1. OpenCV ile yüz algılama (hızlı ama daha az doğru)
+image_opencv, faces_opencv = el.image.detect_faces(
     "fotograf.jpg",
-    rectangle_color=(0, 255, 0),  # Yeşil (BGR formatında)
-    rectangle_thickness=3,        # Kalın çizgi
-    scale_factor=1.05,            # Daha hassas algılama
-    min_neighbors=6,              # Daha az yanlış pozitif
-    min_size=(50, 50)             # Minimum yüz boyutu
+    method='opencv',  # Varsayılan
+    rectangle_color=(0, 0, 255),  # Kırmızı dikdörtgenler
+    rectangle_thickness=2,
+    scale_factor=1.1,
+    min_neighbors=4, 
+    min_size=(30, 30)
+)
+print(f"OpenCV ile tespit edilen yüz sayısı: {len(faces_opencv)}")
+
+# 2. DLIB (face_recognition) ile yüz algılama (daha doğru)
+image_dlib, faces_dlib = el.image.detect_faces(
+    "fotograf.jpg",
+    method='dlib',  # face_recognition kütüphanesini kullanır
+    rectangle_color=(0, 255, 0)  # Yeşil dikdörtgenler
+)
+print(f"DLIB ile tespit edilen yüz sayısı: {len(faces_dlib)}")
+
+# 3. MediaPipe ile yüz algılama (en modern ve hassas)
+image_mp, faces_mp = el.image.detect_faces(
+    "fotograf.jpg",
+    method='mediapipe',  # Google'ın MediaPipe kütüphanesini kullanır
+    rectangle_color=(255, 0, 0),  # Mavi dikdörtgenler
+    draw_landmarks=True  # Yüz hatlarını da çizer
+)
+print(f"MediaPipe ile tespit edilen yüz sayısı: {len(faces_mp)}")
+
+# Her birini dosyaya kaydetme
+el.image.save_image(image_opencv, "opencv_yuzler.jpg")
+el.image.save_image(image_dlib, "dlib_yuzler.jpg")
+el.image.save_image(image_mp, "mediapipe_yuzler.jpg")
+```
+
+#### 2. Yüz Tanıma
+
+```python
+from elan import elan
+
+el = elan()
+
+# Yüz tanıma (face_recognition kütüphanesini kullanır)
+# Bilinen kişiler klasöründe her kişi için ayrı klasör olmalıdır:
+# bilinen_kisiler/
+#   ├── Ahmet/
+#   │   ├── resim1.jpg
+#   │   └── resim2.jpg
+#   ├── Ayşe/
+#   │   ├── resim1.jpg
+#   └── Mehmet/
+#       └── resim1.jpg
+
+image_with_names, recognition_results = el.image.recognize_faces(
+    "grup_fotografi.jpg",
+    known_faces_dir="bilinen_kisiler",
+    tolerance=0.6,  # Eşleşme eşiği (düşük = daha kesin eşleşme)
+    draw_labels=True,  # İsim etiketleri çiz
+    label_color=(0, 255, 0)  # Yeşil etiketler
 )
 
-# Sonucu kaydetme
-el.image.save_image(image_custom, "hassas_yuz_algilama.jpg")
+# Tanıma sonuçlarını göster
+for result in recognition_results:
+    name = result['name']
+    confidence = result['confidence']
+    x, y, w, h = result['location']
+    
+    print(f"Kişi: {name}, Güven: {confidence:.2f}, Konum: ({x},{y},{w},{h})")
+
+# Sonucu kaydet
+el.image.save_image(image_with_names, "taninmis_yuzler.jpg")
 ```
+
+#### Farklı Yüz Algılama Yöntemlerinin Karşılaştırması
+
+| Yöntem | Doğruluk | Hız | Kurulum | Özel Özellikler |
+|--------|----------|-----|---------|----------------|
+| OpenCV | Orta | Hızlı | Otomatik | Basit, hafif |
+| DLIB | Yüksek | Orta | `pip install face_recognition` | Yüz tanıma yeteneği |
+| MediaPipe | Çok Yüksek | Orta-Hızlı | `pip install mediapipe` | Yüz hatları tespiti |
 
 #### Yüz Algılama Test Aracı
 
-Elan kütüphanesinin yüz algılama özelliklerini test etmek için `test_face_detection.py` aracını kullanabilirsiniz:
+Farklı yüz algılama yöntemlerini test etmek için `test_face_detection.py` aracını kullanabilirsiniz:
 
 ```bash
 python test_face_detection.py fotograf.jpg
 ```
 
-Bu komut, belirtilen görüntü üzerinde farklı ayarlarla yüz algılama işlemi yapar ve sonuçları `face_detection_results` klasörüne kaydeder:
+Bu komut, belirtilen görüntü üzerinde üç farklı algılama yöntemiyle yüz algılama yapar ve sonuçları `face_detection_results` klasörüne kaydeder:
 
-1. Varsayılan ayarlarla yüz algılama
-2. Kırmızı dikdörtgenlerle yüz algılama
-3. Yeşil ve kalın dikdörtgenlerle yüz algılama
-4. Hassas ayarlarla yüz algılama (daha az yanlış pozitif)
-
-#### Yüz Algılama Parametreleri
-
-| Parametre | Açıklama | Varsayılan Değer |
-|-----------|----------|------------------|
-| draw_rectangles | Yüzlerin etrafına dikdörtgen çizilip çizilmeyeceği | True |
-| rectangle_color | Dikdörtgen rengi (BGR formatında) | (0, 0, 255) - Kırmızı |
-| rectangle_thickness | Dikdörtgen çizgi kalınlığı | 2 piksel |
-| scale_factor | Her görüntü ölçeği için ne kadar küçülteceğini belirten faktör | 1.1 |
-| min_neighbors | Yüz kabul edilmesi için gerekli komşu sayısı | 4 |
-| min_size | Tespit edilebilecek minimum yüz boyutu | (30, 30) piksel |
+1. OpenCV ile yüz algılama
+2. DLIB (face_recognition) ile yüz algılama
+3. MediaPipe ile yüz algılama
+4. MediaPipe ile yüz hatları (landmarks) tespiti
 
 #### Yüz Algılama İpuçları
 
 - Daha iyi sonuçlar için iyi aydınlatılmış görüntüler kullanın
-- `scale_factor` değerini düşürerek (örn. 1.05) daha hassas algılama yapabilirsiniz
-- `min_neighbors` değerini artırarak (örn. 6-8) yanlış pozitifleri azaltabilirsiniz
-- Daha büyük `min_size` değeri, küçük yüzleri görmezden gelecek ama performansı artıracaktır
+- Yüzler kameraya dönük olmalı
+- Doğruluk önemliyse MediaPipe veya DLIB yöntemlerini kullanın
+- Hız önemliyse OpenCV yöntemini kullanın
+- MediaPipe, yüz hatlarını da tespit edebilir
+- Yüz tanıma için reference görüntülerinde net yüz fotoğrafları kullanın
+- `tolerance` parametresi ile eşleşme hassasiyetini ayarlayabilirsiniz (0.4-0.6 önerilir)
+
+#### Kurulum Gereksinimleri
+
+Yüz algılama ve tanıma özelliklerini tam olarak kullanabilmek için şu paketleri kurmalısınız:
+
+```bash
+# OpenCV otomatik olarak Elan ile kurulur
+# DLIB tabanlı yüz algılama ve tanıma için
+pip install face_recognition
+# MediaPipe ile gelişmiş yüz algılama için
+pip install mediapipe
+```
 

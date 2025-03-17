@@ -4,7 +4,7 @@ import sys
 import cv2
 import time
 
-print("Elan Yüz Algılama - Test")
+print("Elan Gelişmiş Yüz Algılama - Test")
 print("=" * 50)
 
 # Komut satırı argümanını kontrol et (test için kullanılacak görüntü)
@@ -27,65 +27,100 @@ if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
 # Elan kütüphanesini başlat
-el = elan()
+try:
+    el = elan()
+except Exception as e:
+    print(f"Elan kütüphanesi başlatılırken hata oluştu: {e}")
+    sys.exit(1)
 
 print(f"\n'{image_path}' üzerinde yüz algılama yapılıyor...")
 
 # İşlem başlangıç zamanı
 start_time = time.time()
 
-# 1. Varsayılan parametrelerle yüz algılama
-print("1. Varsayılan ayarlarla yüz algılama...")
-image_with_faces, faces = el.image.detect_faces(image_path)
-default_output = os.path.join(results_dir, "yuzler_varsayilan.jpg")
-el.image.save_image(image_with_faces, default_output)
-print(f"   {len(faces)} yüz tespit edildi")
+# MediaPipe ile Yüz Algılama (varsayılan ve en iyi yöntem)
+print("\n1. MediaPipe ile Yüz Algılama (önerilen yöntem)")
+try:
+    # MediaPipe varsayılan
+    print("   MediaPipe yüz algılama çalıştırılıyor...")
+    image_mp, faces_mp = el.image.detect_faces(
+        image_path, 
+        method='mediapipe',
+        rectangle_color=(255, 0, 0)  # Mavi
+    )
+    mp_output = os.path.join(results_dir, "mediapipe_yuz_algilama.jpg")
+    el.image.save_image(image_mp, mp_output)
+    print(f"   {len(faces_mp)} yüz tespit edildi")
+    
+    # MediaPipe yüz hatları
+    print("   MediaPipe yüz hatları ekleniyor...")
+    image_mp_landmarks, _ = el.image.detect_faces(
+        image_path, 
+        method='mediapipe',
+        rectangle_color=(255, 0, 255),  # Mor
+        draw_landmarks=True
+    )
+    mp_landmarks_output = os.path.join(results_dir, "mediapipe_yuz_hatlari.jpg")
+    el.image.save_image(image_mp_landmarks, mp_landmarks_output)
+    
+    print("   MediaPipe ile yüz algılama başarıyla tamamlandı!")
+except Exception as e:
+    print(f"   MediaPipe ile yüz algılama başarısız: {e}")
 
-# 2. Kırmızı dikdörtgenlerle yüz algılama
-print("2. Kırmızı dikdörtgenlerle yüz algılama...")
-image_red, faces = el.image.detect_faces(
-    image_path, 
-    rectangle_color=(0, 0, 255),  # Kırmızı (BGR formatında)
-    rectangle_thickness=2
-)
-red_output = os.path.join(results_dir, "yuzler_kirmizi.jpg")
-el.image.save_image(image_red, red_output)
+# Alternatif yöntemler (sadece MediaPipe başarısız olduysa veya karşılaştırma için kullanın)
+print("\n2. Alternatif Yüz Algılama Yöntemleri")
 
-# 3. Yeşil dikdörtgenlerle ve daha kalın çizgilerle yüz algılama
-print("3. Yeşil ve kalın dikdörtgenlerle yüz algılama...")
-image_green, faces = el.image.detect_faces(
-    image_path, 
-    rectangle_color=(0, 255, 0),  # Yeşil (BGR formatında)
-    rectangle_thickness=3
-)
-green_output = os.path.join(results_dir, "yuzler_yesil_kalin.jpg")
-el.image.save_image(image_green, green_output)
+# DLIB/face_recognition ile yüz algılama
+print("   DLIB/face_recognition ile yüz algılama deneniyor...")
+try:
+    image_dlib, faces_dlib = el.image.detect_faces(
+        image_path, 
+        method='dlib',
+        rectangle_color=(0, 255, 0)  # Yeşil
+    )
+    dlib_output = os.path.join(results_dir, "dlib_yuz_algilama.jpg")
+    el.image.save_image(image_dlib, dlib_output)
+    print(f"   {len(faces_dlib)} yüz tespit edildi")
+except Exception as e:
+    print(f"   DLIB ile yüz algılama başarısız oldu: {e}")
 
-# 4. Daha hassas algılama (daha az yanlış pozitif)
-print("4. Daha hassas yüz algılama ayarları...")
-image_precise, faces_precise = el.image.detect_faces(
-    image_path, 
-    scale_factor=1.05,  # Daha küçük scale factor = daha hassas algılama
-    min_neighbors=6,    # Daha yüksek min_neighbors = daha az yanlış pozitif
-    min_size=(50, 50)   # Daha büyük minimum yüz boyutu
-)
-precise_output = os.path.join(results_dir, "yuzler_hassas.jpg")
-el.image.save_image(image_precise, precise_output)
-print(f"   Hassas ayarlarla {len(faces_precise)} yüz tespit edildi")
+# OpenCV ile yüz algılama
+print("   OpenCV ile yüz algılama deneniyor...")
+try:
+    image_opencv, faces_opencv = el.image.detect_faces(
+        image_path, 
+        method='opencv',
+        rectangle_color=(0, 0, 255)  # Kırmızı
+    )
+    opencv_output = os.path.join(results_dir, "opencv_yuz_algilama.jpg")
+    el.image.save_image(image_opencv, opencv_output)
+    print(f"   {len(faces_opencv)} yüz tespit edildi")
+except Exception as e:
+    print(f"   OpenCV ile yüz algılama başarısız oldu: {e}")
 
 # İşlem süresini hesapla
 duration = time.time() - start_time
 
-print("\nYüz algılama işlemi tamamlandı!")
+print("\nYüz algılama testleri tamamlandı!")
 print(f"Toplam süre: {duration:.2f} saniye")
-print(f"Sonuçlar '{results_dir}' klasöründe kaydedildi.")
-print("\nOluşturulan dosyalar:")
-for file in sorted(os.listdir(results_dir)):
-    print(f" - {file}")
+print(f"Sonuçlar '{results_dir}' klasörüne kaydedildi.")
 
-print("\nKullanım: Bu test, görüntüdeki yüzleri algılar ve işaretler.")
-print("Daha iyi sonuçlar için:")
-print(" - İyi aydınlatılmış görüntüler kullanın")
-print(" - Yüzler kameraya dönük olmalı")
-print(" - scale_factor değerini düşürerek (örn. 1.05) daha hassas algılama yapabilirsiniz")
-print(" - min_neighbors değerini artırarak (örn. 6-8) yanlış pozitifleri azaltabilirsiniz") 
+print("\nSONUÇLAR:")
+try:
+    files = os.listdir(results_dir)
+    if not files:
+        print("   Hiçbir sonuç üretilemedi. Görüntüdeki yüzleri tespit etmek mümkün olmadı.")
+    else:
+        print(f"   {len(files)} sonuç dosyası oluşturuldu:")
+        for file in sorted(os.listdir(results_dir)):
+            file_path = os.path.join(results_dir, file)
+            file_size = os.path.getsize(file_path) / 1024  # KB cinsinden
+            print(f"   - {file} ({file_size:.1f} KB)")
+except Exception as e:
+    print(f"   Sonuçlar listelenirken hata oluştu: {e}")
+
+print("\nÖNERİLER:")
+print("   - MediaPipe en doğru yüz algılama yöntemidir ve varsayılan olarak kullanılır")
+print("   - Eğer MediaPipe sonuçları tatmin edici değilse DLIB veya OpenCV deneyin")
+print("   - Yüz tanıma için recognize_faces() metodunu kullanabilirsiniz")
+print("   - İyi aydınlatılmış ve net görüntüler en iyi sonuçları verir") 

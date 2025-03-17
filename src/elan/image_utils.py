@@ -152,7 +152,7 @@ class image_utils:
             output_path verilmişse True, aksi halde işlenmiş görüntü
         """
         image = self._read_image(image_input)
-        gray = self.to_grayscale(image)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         if method == 'canny':
             edges = cv2.Canny(gray, threshold1, threshold2)
@@ -281,7 +281,7 @@ class image_utils:
             output_path verilmişse True, aksi halde (işlenmiş görüntü, yüz konumları)
         """
         image = self._read_image(image_input)
-        gray = self.to_grayscale(image)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Yüz tespiti için cascade classifier yükle
         face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'

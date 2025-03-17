@@ -39,7 +39,7 @@ class image_utils:
         if len(image.shape) == 2 or image.shape[2] == 1:
             gray_image = image  # Zaten gri tonlamalı
         else:
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         return self._save_result(gray_image, output_path)
 
     def resize(self, image_input, width, height, keep_aspect_ratio=False, output_path=None):

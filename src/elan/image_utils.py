@@ -328,7 +328,7 @@ class image_utils:
         
         elif filter_type == 'sketch':
             # Karakalem efekti
-            gray = self.to_grayscale(image)
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             inv_gray = 255 - gray
             blurred = cv2.GaussianBlur(inv_gray, (21, 21), 0)
             inv_blurred = 255 - blurred
@@ -336,7 +336,7 @@ class image_utils:
         
         elif filter_type == 'cartoon':
             # Karikatür efekti
-            gray = self.to_grayscale(image)
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             blurred = cv2.medianBlur(gray, 5)
             edges = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
             color = cv2.bilateralFilter(image, 9, 300, 300)

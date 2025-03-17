@@ -31,6 +31,9 @@ Bu komut sadece Elan'ın temel özelliklerini (matematik, string, liste işlemle
 
 Elan kütüphanesi modüler bir yapıda tasarlanmıştır. İhtiyacınıza göre sadece belirli özellikleri kurabilirsiniz:
 
+#### ÖNEMLİ: Windows Kurulum Notu
+Windows'ta PowerShell kullanıyorsanız, köşeli parantezleri tırnak içine almanız gerekir:
+
 1. **Temel Kurulum** (Matematik, String, Liste işlemleri):
    ```
    pip install elan
@@ -38,36 +41,65 @@ Elan kütüphanesi modüler bir yapıda tasarlanmıştır. İhtiyacınıza göre
 
 2. **Görüntü İşleme Özellikleri** (OpenCV ile görüntü düzenleme):
    ```
-   pip install elan[image]
+   pip install "elan[image]"
    ```
 
 3. **Yüz Algılama Özellikleri** (dlib, face_recognition ve mediapipe ile):
    ```
-   pip install elan[face]
+   pip install "elan[face]"
    ```
 
 4. **Tam Kurulum** (Tüm özellikleri içerir):
    ```
-   pip install elan[all]
+   pip install "elan[all]"
    ```
 
-#### Windows Kullanıcıları için Önemli Not
+#### Windows'ta Kurulum Sorunları İçin Çözümler
 
-Windows platformunda dlib ve face_recognition kurulumunda sorun yaşıyorsanız, iki kurulum yöntemi sunuyoruz:
+Komutları çalıştırırken hata alıyorsanız, aşağıdaki çözümleri deneyin:
 
-**1. Kolay Yöntem (Önerilen):** Önceden derlenmiş binary wheel kullanımı:
+1. **CMD Kullanıyorsanız:**
+   ```
+   pip install elan[image]
+   ```
+
+2. **PowerShell Kullanıyorsanız:**
+   ```
+   pip install "elan[image]"
+   ```
+
+3. **Tırnak İşaretleri ile Hata Alıyorsanız:**
+   ```
+   pip install 'elan[image]'
+   ```
+
+4. **Sözdizimiyle İlgili Tüm Sorunlar İçin:**
+   ```
+   pip install elan --extras-require=image
+   ```
+
+Ayrıntılı kurulum talimatları için `KURULUM_TALİMATLARI.md` dosyasına bakabilirsiniz.
+
+#### Windows'ta Dlib Kurulum Sorunları İçin Çözümler
+
+Windows'ta dlib kurulumunda sorun yaşıyorsanız aşağıdaki çözümleri deneyebilirsiniz:
+
+**Önerilen Yöntem: Önceden Derlenmiş Paket**
 ```
+# Python 3.10 için (64-bit)
 pip install https://github.com/jloh02/dlib/releases/download/v19.22/dlib-19.22.99-cp310-cp310-win_amd64.whl
+
+# Ardından face_recognition ve elan yükleyin
 pip install face_recognition
-pip install elan[face]
+pip install "elan[face]"
 ```
 
-**2. Manuel Derleme Yöntemi:**
-- [CMake](https://cmake.org/download/) indirin ve kurun
-- [Visual Studio Community](https://visualstudio.microsoft.com/downloads/) (C++ geliştirme araçlarını seçin) indirin ve kurun
-- Daha sonra terminalde: `pip install dlib`
-- Ardından: `pip install face_recognition`
-- Son olarak: `pip install elan[face]`
+**Alternatif: Manuel Derleme**
+1. CMake kurulumu: https://cmake.org/download/
+2. Visual Studio Community kurulumu (C++ geliştirme araçlarını seçin)
+3. Terminalde: `pip install dlib`
+4. Ardından: `pip install face_recognition`
+5. Son olarak: `pip install "elan[face]"`
 
 ### Kurulum Doğrulama
 

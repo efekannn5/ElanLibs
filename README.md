@@ -1028,18 +1028,6 @@ C: Şu anda Türkçe ve İngilizce dillerini destekler. Otomatik dil tespiti öz
 **S: Kelime veri tabanı ne kadar büyüktür?**  
 C: İlk kurulumda temel bir kelime kümesi gelir. `update_word_database()` fonksiyonu ile daha kapsamlı kelime havuzları internet üzerinden indirilebilir.
 
-## Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
-## İletişim
-
-Herhangi bir soru, öneri veya geri bildirim için:
-
-- GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs)
-- E-posta: efekan8190nefesogeu@gmail.com
-
-### Powered By Efekan Nefesoğlu
 
 ### Yüz Algılama ve Tanıma
 
@@ -1200,3 +1188,17 @@ try:
 except ImportError:
     print("Yüz algılama için: pip install elan[face]")
 ```
+
+
+## Lisans
+
+Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+## İletişim
+
+Herhangi bir soru, öneri veya geri bildirim için:
+
+- GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs)
+- E-posta: efekan8190nefesogeu@gmail.com
+
+### Powered By Efekan Nefesoğlu

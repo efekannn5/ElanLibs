@@ -62,6 +62,6 @@ except ImportError:
     # Exception burada yakalanır ama main.py içinde ImportError fırlatılacak
     pass
 
-__version__ = "0.3.5"
+__version__ = "0.3.6"
 __author__ = "Efekan Nefesoğlu"
 __license__ = "MIT"

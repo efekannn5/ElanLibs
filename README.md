@@ -19,6 +19,10 @@ Elan'ın amacı, tekerleği yeniden icat etmek yerine, yaygın kullanılan işle
 
 ## Kurulum
 
+### Sistem Gereksinimleri
+- **Python 3.6** veya üzeri (Python 3.8+ önerilir)
+- Windows, Linux veya macOS işletim sistemleri
+
 Elan kütüphanesini pip kullanarak kurabilirsiniz:
 
 ```

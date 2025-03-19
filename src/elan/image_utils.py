@@ -255,7 +255,7 @@ class image_utils:
             image_input: Görüntü dosya yolu veya numpy dizisi
             top_left: Sol üst köşe koordinatları (x, y)
             bottom_right: Sağ alt köşe koordinatları (x, y)
-            color: Dikdörtgen rengi (BGR formatında tuple)
+            color: Çizgi rengi (BGR formatında tuple)
             thickness: Çizgi kalınlığı
             output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
             
@@ -264,17 +264,48 @@ class image_utils:
         """
         image = self._read_image(image_input)
         
-        # Dikdörtgeni ekle
+        # Dikdörtgen ekle
         cv2.rectangle(image, top_left, bottom_right, color, thickness)
         
         return self._save_result(image, output_path)
+    
+    def detect_faces(self, image_input, draw_rectangles=True, output_path=None):
+        """Görüntüdeki yüzleri tespit et
+        
+        Args:
+            image_input: Görüntü dosya yolu veya numpy dizisi
+            draw_rectangles: Yüzlerin etrafına dikdörtgen çiz
+            output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
+            
+        Returns:
+            output_path verilmişse True, aksi halde (işlenmiş görüntü, yüz konumları)
+        """
+        image = self._read_image(image_input)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # Yüz tespiti için cascade classifier yükle
+        face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+        face_cascade = cv2.CascadeClassifier(face_cascade_path)
+        
+        # Yüzleri tespit et
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        
+        if draw_rectangles and len(faces) > 0:
+            for (x, y, w, h) in faces:
+                cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+        
+        if output_path:
+            cv2.imwrite(output_path, image)
+            return faces
+        else:
+            return image, faces
     
     def apply_filter(self, image_input, filter_type, output_path=None):
         """Görüntüye filtre uygula
         
         Args:
             image_input: Görüntü dosya yolu veya numpy dizisi
-            filter_type: Filtre tipi ('cartoon', 'sketch', 'emboss', 'sharpen')
+            filter_type: Filtre tipi ('sepia', 'negative', 'sketch', 'cartoon')
             output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
             
         Returns:
@@ -282,61 +313,48 @@ class image_utils:
         """
         image = self._read_image(image_input)
         
-        if filter_type == 'cartoon':
-            # Gri tonlamalı görüntü
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            # Medyan bulanıklaştırma
-            gray = cv2.medianBlur(gray, 5)
-            # Kenar tespiti
-            edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
-            # Renkli görüntüyü bulanıklaştır
-            color = cv2.bilateralFilter(image, 9, 250, 250)
-            # Kenarları ve renkli görüntüyü birleştir
-            cartoon = cv2.bitwise_and(color, color, mask=edges)
-            result = cartoon
-            
-        elif filter_type == 'sketch':
-            # Gri tonlamalı görüntü
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            # Gürültüyü azalt
-            gray = cv2.GaussianBlur(gray, (5, 5), 0)
-            # Kenar tespiti
-            edges = cv2.Canny(gray, 100, 200)
-            # Kenarları kalınlaştır
-            kernel = np.ones((3,3), np.uint8)
-            edges = cv2.dilate(edges, kernel, iterations=1)
-            # Kenarları beyaz yap
-            result = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-            
-        elif filter_type == 'emboss':
-            # Emboss kernel
-            kernel = np.array([[-2,-1,0],
-                              [-1, 1,1],
-                              [ 0, 1,2]])
-            # Filtre uygula
-            result = cv2.filter2D(image, -1, kernel)
-            
-        elif filter_type == 'sharpen':
-            # Keskinleştirme kernel
-            kernel = np.array([[-1,-1,-1],
-                              [-1, 9,-1],
-                              [-1,-1,-1]])
-            # Filtre uygula
-            result = cv2.filter2D(image, -1, kernel)
-            
-        else:
-            raise ValueError("Geçersiz filter_type. 'cartoon', 'sketch', 'emboss' veya 'sharpen' kullanın")
+        if filter_type == 'sepia':
+            # Sepya filtresi
+            sepia_kernel = np.array([
+                [0.272, 0.534, 0.131],
+                [0.349, 0.686, 0.168],
+                [0.393, 0.769, 0.189]
+            ])
+            filtered = cv2.transform(image, sepia_kernel)
         
-        return self._save_result(result, output_path)
+        elif filter_type == 'negative':
+            # Negatif filtresi
+            filtered = cv2.bitwise_not(image)
+        
+        elif filter_type == 'sketch':
+            # Karakalem efekti
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            inv_gray = 255 - gray
+            blurred = cv2.GaussianBlur(inv_gray, (21, 21), 0)
+            inv_blurred = 255 - blurred
+            filtered = cv2.divide(gray, inv_blurred, scale=256.0)
+        
+        elif filter_type == 'cartoon':
+            # Karikatür efekti
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            blurred = cv2.medianBlur(gray, 5)
+            edges = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
+            color = cv2.bilateralFilter(image, 9, 300, 300)
+            filtered = cv2.bitwise_and(color, color, mask=edges)
+        
+        else:
+            raise ValueError("Geçersiz filter_type. 'sepia', 'negative', 'sketch' veya 'cartoon' kullanın")
+        
+        return self._save_result(filtered, output_path)
     
     def merge_images(self, image1_input, image2_input, weight1=0.5, weight2=0.5, output_path=None):
-        """İki görüntüyü birleştir
+        """İki görüntüyü karıştır
         
         Args:
             image1_input: Birinci görüntü dosya yolu veya numpy dizisi
             image2_input: İkinci görüntü dosya yolu veya numpy dizisi
-            weight1: Birinci görüntünün ağırlığı (0.0-1.0 arası)
-            weight2: İkinci görüntünün ağırlığı (0.0-1.0 arası)
+            weight1: Birinci görüntü ağırlığı (0.0-1.0)
+            weight2: İkinci görüntü ağırlığı (0.0-1.0)
             output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
             
         Returns:
@@ -346,10 +364,13 @@ class image_utils:
         image2 = self._read_image(image2_input)
         
         # Görüntüleri aynı boyuta getir
-        if image1.shape != image2.shape:
-            image2 = cv2.resize(image2, (image1.shape[1], image1.shape[0]))
+        h1, w1 = image1.shape[:2]
+        h2, w2 = image2.shape[:2]
         
-        # Görüntüleri birleştir
+        if h1 != h2 or w1 != w2:
+            image2 = cv2.resize(image2, (w1, h1))
+        
+        # Görüntüleri karıştır
         merged = cv2.addWeighted(image1, weight1, image2, weight2, 0)
         
         return self._save_result(merged, output_path)
@@ -362,7 +383,7 @@ class image_utils:
             output_path: Kaydedilecek dosya yolu
             
         Returns:
-            bool: Başarılı ise True
+            bool: Başarı durumu
         """
         image = self._read_image(image_input)
         return cv2.imwrite(output_path, image)

@@ -22,28 +22,9 @@ def kurulum_bilgisi():
     except ImportError:
         print("- Görüntü işleme (image) ✗ - Kurulum için: pip install elan[image]")
     
-    try:
-        import dlib
-        print("- DLIB ✓")
-    except ImportError:
-        print("- DLIB ✗ - Kurulum için: pip install elan[face] veya pip install dlib")
-    
-    try:
-        import face_recognition
-        print("- Face Recognition ✓")
-    except ImportError:
-        print("- Face Recognition ✗ - Kurulum için: pip install elan[face]")
-    
-    try:
-        import mediapipe
-        print("- MediaPipe ✓")
-    except ImportError:
-        print("- MediaPipe ✗ - Kurulum için: pip install elan[face] veya pip install mediapipe")
-    
     print("\nKurulum seçenekleri:")
     print("- Temel kurulum: pip install elan")
     print("- Görüntü işleme: pip install elan[image]")
-    print("- Yüz algılama: pip install elan[face]") 
     print("- Tam kurulum: pip install elan[all]")
     print("=" * 40)
 

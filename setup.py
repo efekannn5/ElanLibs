@@ -14,19 +14,9 @@ setup(
         'image': [
             "opencv-python>=4.5.3",    # Görüntü işleme için OpenCV
         ],
-        # Yüz algılama özellikleri
-        'face': [
-            "opencv-python>=4.5.3",    # Görüntü işleme için OpenCV
-            "dlib>=19.22.0",           # Yüz algılama için temel kütüphane
-            "face_recognition>=1.3.0", # DLIB tabanlı yüz tanıma için
-            "mediapipe>=0.8.9",        # Google'ın modern yüz algılama için
-        ],
         # Tüm özellikler
         'all': [
             "opencv-python>=4.5.3",
-            "dlib>=19.22.0", 
-            "face_recognition>=1.3.0",
-            "mediapipe>=0.8.9",
         ],
     },
     author="Efekan Nefesoğlu",

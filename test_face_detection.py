@@ -7,7 +7,7 @@ import argparse
 from pathlib import Path
 
 def main():
-    parser = argparse.ArgumentParser(description='Elan kütüphanesi yüz algılama testi')
+    parser = argparse.ArgumentParser(description='Elan kütüphanesi görüntü işleme testi')
     parser.add_argument('image_path', type=str, help='Test edilecek görüntü dosyasının yolu')
     args = parser.parse_args()
     
@@ -16,11 +16,10 @@ def main():
         print(f"Hata: Belirtilen görüntü dosyası bulunamadı: {args.image_path}")
         sys.exit(1)
     
-    print("\n=== Elan Kütüphanesi Yüz Algılama Testi ===\n")
+    print("\n=== Elan Kütüphanesi Görüntü İşleme Testi ===\n")
     
     # Elan kütüphanesini import et
     try:
-        
         print("✓ Elan kütüphanesi başarıyla yüklendi.")
     except ImportError as e:
         print(f"✗ Elan kütüphanesi yüklenemedi: {e}")
@@ -28,10 +27,10 @@ def main():
         sys.exit(1)
     
     # Modül durumlarını kontrol et
-    from elan import MODULES_STATUS, print_module_status
+    from elan import kurulum_bilgisi
     
-    # Tüm modüllerin durumunu göster
-    print_module_status()
+    # Modül durumunu göster
+    kurulum_bilgisi()
     
     # Eksik modül olsa bile testi çalıştırmaya devam et
     # Testi çalıştır - kullanılabilir özellikleri test et
@@ -39,13 +38,13 @@ def main():
         e = elan.elan()
         
         # Görüntü modülü var mı kontrol et
-        if e.image is None:
+        if not hasattr(e, 'image'):
             print("\n✗ Görüntü işleme modülü yüklenmemiş. Test atlanıyor.")
             sys.exit(1)
         
         # Görüntüyü yükle
         print(f"\nGörüntü yükleniyor: {args.image_path}")
-        img = e.image.load(args.image_path)
+        img = e.image._read_image(args.image_path)
         
         if img is None:
             print("✗ Görüntü yüklenemedi!")
@@ -53,41 +52,32 @@ def main():
         
         print(f"✓ Görüntü başarıyla yüklendi. Boyut: {img.shape}")
         
-        # Kullanılabilir yüz algılama yöntemlerini dene
-        print("\nYüz algılama testleri:")
+        # Görüntü işleme testleri
+        print("\nGörüntü işleme testleri:")
         
-        # Face Recognition yöntemi (dlib tabanlı)
-        if MODULES_STATUS['face_recognition']['available']:
-            try:
-                print("\n- Face Recognition yöntemi ile test ediliyor...")
-                faces = e.image.detect_faces(img, method="face_recognition")
-                print(f"  ✓ {len(faces)} yüz bulundu!")
-            except Exception as ex:
-                print(f"  ✗ Test başarısız: {ex}")
-        else:
-            print("\n- Face Recognition yöntemi test edilemiyor (kütüphane yüklenmemiş).")
+        # Gri tonlama testi
+        try:
+            print("\n- Gri tonlama dönüşümü test ediliyor...")
+            gray = e.image.to_grayscale(img)
+            print(f"  ✓ Görüntü gri tonlamaya dönüştürüldü. Boyut: {gray.shape}")
+        except Exception as ex:
+            print(f"  ✗ Test başarısız: {ex}")
         
-        # MediaPipe yöntemi
-        if MODULES_STATUS['mediapipe']['available']:
-            try:
-                print("\n- MediaPipe yöntemi ile test ediliyor...")
-                faces = e.image.detect_faces(img, method="mediapipe")
-                print(f"  ✓ {len(faces)} yüz bulundu!")
-            except Exception as ex:
-                print(f"  ✗ Test başarısız: {ex}")
-        else:
-            print("\n- MediaPipe yöntemi test edilemiyor (kütüphane yüklenmemiş).")
+        # Yeniden boyutlandırma testi
+        try:
+            print("\n- Yeniden boyutlandırma test ediliyor...")
+            resized = e.image.resize(img, 300, 200)
+            print(f"  ✓ Görüntü yeniden boyutlandırıldı. Yeni boyut: {resized.shape}")
+        except Exception as ex:
+            print(f"  ✗ Test başarısız: {ex}")
         
-        # OpenCV yöntemi
-        if MODULES_STATUS['opencv']['available']:
-            try:
-                print("\n- OpenCV (haar cascade) yöntemi ile test ediliyor...")
-                faces = e.image.detect_faces(img, method="opencv")
-                print(f"  ✓ {len(faces)} yüz bulundu!")
-            except Exception as ex:
-                print(f"  ✗ Test başarısız: {ex}")
-        else:
-            print("\n- OpenCV yöntemi test edilemiyor (kütüphane yüklenmemiş).")
+        # Kenar algılama testi
+        try:
+            print("\n- Kenar algılama test ediliyor...")
+            edges = e.image.detect_edges(img)
+            print(f"  ✓ Kenarlar algılandı. Boyut: {edges.shape}")
+        except Exception as ex:
+            print(f"  ✗ Test başarısız: {ex}")
         
         print("\nTest tamamlandı!")
     

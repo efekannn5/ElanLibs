@@ -18,6 +18,377 @@ class string_utils:
         # Dil algılama için karakter setleri
         self.tr_chars = set('çğıöşüÇĞİÖŞÜ')
         
+    # Temel string işleme metodları
+    def reverse(self, text):
+        """Metni tersine çevirir
+        
+        Args:
+            text (str): Tersine çevrilecek metin
+            
+        Returns:
+            str: Tersine çevrilmiş metin
+        """
+        return text[::-1]
+    
+    # Türkçe alternatif
+    def tersine_cevir(self, text):
+        """Metni tersine çevirir
+        
+        Args:
+            text (str): Tersine çevrilecek metin
+            
+        Returns:
+            str: Tersine çevrilmiş metin
+        """
+        return self.reverse(text)
+    
+    def capitalize(self, text):
+        """Metnin ilk harfini büyük yapar
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: İlk harfi büyük yapılmış metin
+        """
+        return text.capitalize()
+    
+    # Türkçe alternatif
+    def buyuk_harf_yap(self, text):
+        """Metnin ilk harfini büyük yapar
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: İlk harfi büyük yapılmış metin
+        """
+        return self.capitalize(text)
+    
+    def uppercase(self, text):
+        """Tüm metni büyük harfe çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Büyük harfli metin
+        """
+        return text.upper()
+    
+    # Türkçe alternatif
+    def buyuk_harfe_cevir(self, text):
+        """Tüm metni büyük harfe çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Büyük harfli metin
+        """
+        return self.uppercase(text)
+    
+    def lowercase(self, text):
+        """Tüm metni küçük harfe çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Küçük harfli metin
+        """
+        return text.lower()
+    
+    # Türkçe alternatif
+    def kucuk_harfe_cevir(self, text):
+        """Tüm metni küçük harfe çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Küçük harfli metin
+        """
+        return self.lowercase(text)
+    
+    def title(self, text):
+        """Her kelimenin ilk harfini büyük yapar
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Her kelimesi büyük harfle başlayan metin
+        """
+        return text.title()
+    
+    # Türkçe alternatif
+    def baslik_yap(self, text):
+        """Her kelimenin ilk harfini büyük yapar
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Her kelimesi büyük harfle başlayan metin
+        """
+        return self.title(text)
+    
+    def swapcase(self, text):
+        """Harflerin büyük/küçük durumunu tersine çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Büyük/küçük harf durumu değiştirilmiş metin
+        """
+        return text.swapcase()
+    
+    # Türkçe alternatif
+    def buyuk_kucuk_degistir(self, text):
+        """Harflerin büyük/küçük durumunu tersine çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Büyük/küçük harf durumu değiştirilmiş metin
+        """
+        return self.swapcase(text)
+    
+    def isalpha(self, text):
+        """Metnin sadece harflerden oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece harflerden oluşuyorsa True
+        """
+        return text.isalpha()
+    
+    # Türkçe alternatif
+    def harf_mi(self, text):
+        """Metnin sadece harflerden oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece harflerden oluşuyorsa True
+        """
+        return self.isalpha(text)
+    
+    def isdigit(self, text):
+        """Metnin sadece rakamlardan oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece rakamlardan oluşuyorsa True
+        """
+        return text.isdigit()
+    
+    # Türkçe alternatif
+    def rakam_mi(self, text):
+        """Metnin sadece rakamlardan oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece rakamlardan oluşuyorsa True
+        """
+        return self.isdigit(text)
+    
+    def isalnum(self, text):
+        """Metnin harf ve/veya rakamlardan oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece harf ve/veya rakamlardan oluşuyorsa True
+        """
+        return text.isalnum()
+    
+    # Türkçe alternatif
+    def harf_rakam_mi(self, text):
+        """Metnin harf ve/veya rakamlardan oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece harf ve/veya rakamlardan oluşuyorsa True
+        """
+        return self.isalnum(text)
+    
+    def islower(self, text):
+        """Metnin tümünün küçük harf olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin tamamen küçük harflerden oluşuyorsa True
+        """
+        return text.islower()
+    
+    # Türkçe alternatif
+    def kucuk_harf_mi(self, text):
+        """Metnin tümünün küçük harf olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin tamamen küçük harflerden oluşuyorsa True
+        """
+        return self.islower(text)
+    
+    def isupper(self, text):
+        """Metnin tümünün büyük harf olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin tamamen büyük harflerden oluşuyorsa True
+        """
+        return text.isupper()
+    
+    # Türkçe alternatif
+    def buyuk_harf_mi(self, text):
+        """Metnin tümünün büyük harf olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin tamamen büyük harflerden oluşuyorsa True
+        """
+        return self.isupper(text)
+    
+    def istitle(self, text):
+        """Metnin her kelimesinin ilk harfinin büyük olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Her kelime büyük harfle başlıyorsa True
+        """
+        return text.istitle()
+    
+    # Türkçe alternatif
+    def baslik_mi(self, text):
+        """Metnin her kelimesinin ilk harfinin büyük olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Her kelime büyük harfle başlıyorsa True
+        """
+        return self.istitle(text)
+    
+    def isspace(self, text):
+        """Metnin sadece boşluklardan oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece boşluklardan oluşuyorsa True
+        """
+        return text.isspace()
+    
+    # Türkçe alternatif
+    def bosluk_mu(self, text):
+        """Metnin sadece boşluklardan oluşup oluşmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin sadece boşluklardan oluşuyorsa True
+        """
+        return self.isspace(text)
+    
+    def isprintable(self, text):
+        """Metnin yazdırılabilir olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin yazdırılabilir karakterlerden oluşuyorsa True
+        """
+        return text.isprintable()
+    
+    # Türkçe alternatif
+    def yazdirilabilir_mi(self, text):
+        """Metnin yazdırılabilir olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin yazdırılabilir karakterlerden oluşuyorsa True
+        """
+        return self.isprintable(text)
+    
+    def isidentifier(self, text):
+        """Metnin geçerli bir Python tanımlayıcısı olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin geçerli bir Python tanımlayıcısı ise True
+        """
+        return text.isidentifier()
+    
+    # Türkçe alternatif
+    def tanimlayici_mi(self, text):
+        """Metnin geçerli bir Python tanımlayıcısı olup olmadığını kontrol eder
+        
+        Args:
+            text (str): Kontrol edilecek metin
+            
+        Returns:
+            bool: Metin geçerli bir Python tanımlayıcısı ise True
+        """
+        return self.isidentifier(text)
+    
+    def reverse_words(self, text):
+        """Metindeki her kelimeyi tersine çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Her kelimesi tersine çevrilmiş metin
+        """
+        words = text.split()
+        reversed_words = [self.reverse(word) for word in words]
+        return ' '.join(reversed_words)
+    
+    # Türkçe alternatif
+    def kelimeleri_tersine_cevir(self, text):
+        """Metindeki her kelimeyi tersine çevirir
+        
+        Args:
+            text (str): İşlenecek metin
+            
+        Returns:
+            str: Her kelimesi tersine çevrilmiş metin
+        """
+        return self.reverse_words(text)
+        
     def _load_turkish_words(self):
         """Türkçe kelime havuzunu yükle"""
         try:

@@ -41,6 +41,19 @@ class image_utils:
         else:
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         return self._save_result(gray_image, output_path)
+    
+    # Türkçe alternatif
+    def gri_tonlamaya_donustur(self, image_input, output_path=None):
+        """Görüntüyü gri tonlamaya dönüştür
+        
+        Args:
+            image_input: Görüntü dosya yolu veya numpy dizisi
+            output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
+            
+        Returns:
+            output_path verilmişse True, aksi halde işlenmiş görüntü
+        """
+        return self.to_grayscale(image_input, output_path)
 
     def resize(self, image_input, width, height, keep_aspect_ratio=False, output_path=None):
         """Görüntüyü yeniden boyutlandır
@@ -75,6 +88,22 @@ class image_utils:
         
         resized_image = cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
         return self._save_result(resized_image, output_path)
+    
+    # Türkçe alternatif
+    def yeniden_boyutlandir(self, image_input, width, height, keep_aspect_ratio=False, output_path=None):
+        """Görüntüyü yeniden boyutlandır
+        
+        Args:
+            image_input: Görüntü dosya yolu veya numpy dizisi
+            width: Yeni genişlik
+            height: Yeni yükseklik
+            keep_aspect_ratio: En boy oranını koru
+            output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
+            
+        Returns:
+            output_path verilmişse True, aksi halde işlenmiş görüntü
+        """
+        return self.resize(image_input, width, height, keep_aspect_ratio, output_path)
 
     def rotate(self, image_input, angle, output_path=None):
         """Görüntüyü döndür
@@ -94,6 +123,20 @@ class image_utils:
         rotated_image = cv2.warpAffine(image, M, (w, h))
         return self._save_result(rotated_image, output_path)
     
+    # Türkçe alternatif
+    def dondur(self, image_input, angle, output_path=None):
+        """Görüntüyü döndür
+        
+        Args:
+            image_input: Görüntü dosya yolu veya numpy dizisi
+            angle: Döndürme açısı (derece)
+            output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
+            
+        Returns:
+            output_path verilmişse True, aksi halde işlenmiş görüntü
+        """
+        return self.rotate(image_input, angle, output_path)
+    
     def crop(self, image_input, x, y, width, height, output_path=None):
         """Görüntüyü kırp
         
@@ -109,6 +152,21 @@ class image_utils:
         image = self._read_image(image_input)
         cropped_image = image[y:y+height, x:x+width]
         return self._save_result(cropped_image, output_path)
+    
+    # Türkçe alternatif
+    def kirp(self, image_input, x, y, width, height, output_path=None):
+        """Görüntüyü kırp
+        
+        Args:
+            image_input: Görüntü dosya yolu veya numpy dizisi
+            x, y: Başlangıç koordinatları
+            width, height: Kırpma boyutları
+            output_path: Sonucu kaydetmek için dosya yolu (opsiyonel)
+            
+        Returns:
+            output_path verilmişse True, aksi halde işlenmiş görüntü
+        """
+        return self.crop(image_input, x, y, width, height, output_path)
     
     def add_blur(self, image_input, blur_type='gaussian', kernel_size=5, output_path=None):
         """Görüntüye bulanıklık ekle

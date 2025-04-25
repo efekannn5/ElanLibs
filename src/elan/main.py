@@ -6,15 +6,23 @@ from elan.video_utils import video_utils
 
 
 class elan:
-    # math
+    # math - matematiksel işlemler
     math = math_utils()
-    # string
+    mat = math_utils()  # Türkçe alternatif
+    
+    # string - metin işlemleri
     string = string_utils()
-    # list
+    yazi = string_utils()  # Türkçe alternatif
+    
+    # list - liste işlemleri
     list = list_utils()
-    # image
+    dizi = list_utils()  # Türkçe alternatif
+    
+    # image - görüntü işlemleri
     image = image_utils()
-    # video
+    goruntu = image_utils()  # Türkçe alternatif
+    
+    # video - video işlemleri
     video = video_utils()
 
 

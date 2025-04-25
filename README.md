@@ -45,6 +45,29 @@ el = elan()
 
 Bu örnek üzerinden tüm fonksiyonlara erişebilirsiniz.
 
+## Türkçe Fonksiyon İsimleri
+
+Elan kütüphanesi, İngilizce metot isimlerinin yanı sıra Türkçe metot isimleri de sunar. Bu özellik, Türkçe döküman ve öğrenim sürecinde kolaylık sağlamak amacıyla eklenmiştir. Ana modüller de Türkçe alternatiflerle erişilebilir:
+
+```python
+from elan import elan
+
+# Elan sınıfını başlat
+el = elan()
+
+# İngilizce modül isimleri
+result1 = el.math.add(5, 3)          # Sonuç: 8
+result2 = el.string.reverse("Elan")  # Sonuç: "nalE"
+result3 = el.list.reverse([1, 2, 3]) # Sonuç: [3, 2, 1]
+result4 = el.image.resize("foto.jpg", 800, 600) # Resmi boyutlandırır
+
+# Türkçe modül isimleri
+sonuc1 = el.mat.topla(5, 3)          # Sonuç: 8
+sonuc2 = el.yazi.tersine_cevir("Elan") # Sonuç: "nalE"
+sonuc3 = el.dizi.tersine_cevir([1, 2, 3]) # Sonuç: [3, 2, 1]
+sonuc4 = el.goruntu.yeniden_boyutlandir("foto.jpg", 800, 600) # Resmi boyutlandırır
+```
+
 ### Matematiksel İşlevler
 
 `math` modülü, temel matematiksel işlemler için kullanışlı fonksiyonlar sağlar:
@@ -109,6 +132,63 @@ sonuc = el.math.median(1, 3, 5, 7, 9)  # Sonuç: 5
 sonuc = el.math.median(1, 3, 5, 7)  # Sonuç: 4.0 (çift sayıda eleman olduğunda ortadaki iki sayının ortalaması)
 ```
 
+### Matematiksel İşlevler (Türkçe)
+
+`mat` modülü, `math` modülünün Türkçe alternatifidir:
+
+```python
+# Toplama işlemi
+sonuc = el.mat.topla(5, 3)  # Sonuç: 8
+
+# Çıkarma işlemi
+sonuc = el.mat.cikar(10, 4)  # Sonuç: 6
+
+# Çarpma işlemi
+sonuc = el.mat.carp(3, 5)  # Sonuç: 15
+
+# Bölme işlemi
+sonuc = el.mat.bol(10, 2)  # Sonuç: 5.0
+
+# Üs alma
+sonuc = el.mat.us(2, 3)  # Sonuç: 8 (2³)
+
+# Karekök
+sonuc = el.mat.karekok(16)  # Sonuç: 4.0
+
+# Küpkök
+sonuc = el.mat.kupkok(27)  # Sonuç: 3.0
+
+# Kare
+sonuc = el.mat.kare(4)  # Sonuç: 16
+
+# Küp
+sonuc = el.mat.kup(3)  # Sonuç: 27
+
+# Faktöriyel
+sonuc = el.mat.faktoriyel(5)  # Sonuç: 120 (5! = 5×4×3×2×1)
+
+# İstediğiniz kadar sayıyı toplama
+sonuc = el.mat.tumunu_topla(1, 2, 3, 4, 5)  # Sonuç: 15
+
+# İstediğiniz kadar sayıyı çarpma
+sonuc = el.mat.tumunu_carp(1, 2, 3, 4, 5)  # Sonuç: 120
+
+# Sayıların ortalamasını alma
+sonuc = el.mat.ortalama(1, 2, 3, 4, 5)  # Sonuç: 3.0
+
+# En büyük değeri bulma
+sonuc = el.mat.en_buyuk_deger(1, 5, 3, 9, 2)  # Sonuç: 9
+
+# En küçük değeri bulma
+sonuc = el.mat.en_kucuk_deger(1, 5, 3, 9, 2)  # Sonuç: 1
+
+# En büyük ve en küçük değer arasındaki farkı bulma (aralık)
+sonuc = el.mat.aralik_degeri(1, 5, 3, 9, 2)  # Sonuç: 8
+
+# Sayıların medyanını bulma
+sonuc = el.mat.medyan(1, 3, 5, 7, 9)  # Sonuç: 5
+```
+
 ### String (Metin) İşlevleri
 
 `string` modülü, metinlerle çalışmak için çeşitli yardımcı fonksiyonlar sunar:
@@ -140,80 +220,56 @@ sonuc = el.string.isalpha("Merhaba123")  # Sonuç: False
 sonuc = el.string.isdigit("12345")  # Sonuç: True
 sonuc = el.string.isdigit("12a45")  # Sonuç: False
 
-# Metnin hem harf hem rakam içerip içermediğini kontrol etme
-sonuc = el.string.isalnum("abc123")  # Sonuç: True
-
-# Metnin tümünün küçük harf olup olmadığını kontrol etme
-sonuc = el.string.islower("merhaba")  # Sonuç: True
-
-# Metnin tümünün büyük harf olup olmadığını kontrol etme
-sonuc = el.string.isupper("MERHABA")  # Sonuç: True
-
-# Metnin her kelimesinin ilk harfinin büyük olup olmadığını kontrol etme
-sonuc = el.string.istitle("Merhaba Dünya")  # Sonuç: True
-
-# Metnin sadece boşluklardan oluşup oluşmadığını kontrol etme
-sonuc = el.string.isspace("   ")  # Sonuç: True
-
-# Metnin yazdırılabilir olup olmadığını kontrol etme
-sonuc = el.string.isprintable("Merhaba\n")  # Sonuç: False
-
-# Metnin geçerli bir Python tanımlayıcısı olup olmadığını kontrol etme
-sonuc = el.string.isidentifier("valid_name")  # Sonuç: True
-
 # Metindeki her kelimeyi tersine çevirme
 sonuc = el.string.reverse_words("Merhaba Dünya")  # Sonuç: "abahreM aynüD"
 ```
 
-#### Yazım Denetimi ve Düzeltme İşlevleri
+### Dil Algılama ve Yazım Denetimi
 
-`string` modülü, Türkçe ve İngilizce metinlerde yazım hatalarını düzeltmek için gelişmiş işlevler sunar:
+String modülü, Türkçe ve İngilizce metinler için bazı dil işleme özellikleri içerir:
 
 ```python
-# Dil tespiti
+# Dilin tespiti (Türkçe veya İngilizce)
 dil = el.string.detect_language("merhaba dünya")  # Sonuç: "tr"
 dil = el.string.detect_language("hello world")    # Sonuç: "en"
 
-# Türkçe kelime düzeltme
-oneriler = el.string.suggest_correction("meraba", language="tr")  
-# Sonuç: ['merhaba']
+# NOT: Yazım denetimi ve düzeltme işlevleri implementation aşamasındadır
+# İleri versiyonlarda eklenecektir
+```
 
-# İngilizce kelime düzeltme 
-oneriler = el.string.suggest_correction("helo", language="en")
-# Sonuç: ['hello']
+### String (Metin) İşlevleri (Türkçe)
 
-# Otomatik dil tespiti ile kelime düzeltme
-oneriler = el.string.suggest_correction("meraba")  # Türkçe olarak tespit edilir
-# Sonuç: ['merhaba']
+`yazi` modülü, `string` modülünün Türkçe alternatifidir:
 
-oneriler = el.string.suggest_correction("helo")    # İngilizce olarak tespit edilir
-# Sonuç: ['hello']
+```python
+# Metni tersine çevirme
+sonuc = el.yazi.tersine_cevir("Merhaba")  # Sonuç: "abahreM"
 
-# Birden fazla öneri alma
-oneriler = el.string.suggest_correction("selm", language="tr", max_suggestions=3)  
-# Sonuç: ['selam', 'ses', 'film'] gibi
+# İlk harfi büyük yapma
+sonuc = el.yazi.buyuk_harf_yap("merhaba dünya")  # Sonuç: "Merhaba dünya"
 
-# Türkçe metin düzeltme
-duzeltilmis_metin = el.string.correct_text("meraba naslsın", language="tr")
-# Sonuç: "merhaba nasılsın"
+# Tüm metni büyük harfe çevirme
+sonuc = el.yazi.buyuk_harfe_cevir("merhaba")  # Sonuç: "MERHABA"
 
-# İngilizce metin düzeltme
-duzeltilmis_metin = el.string.correct_text("helo worl", language="en")
-# Sonuç: "hello world"
+# Tüm metni küçük harfe çevirme
+sonuc = el.yazi.kucuk_harfe_cevir("MERHABA")  # Sonuç: "merhaba"
 
-# Otomatik dil tespiti ile metin düzeltme
-duzeltilmis_metin = el.string.correct_text("meraba nasilsin")  # Türkçe olarak tespit edilir
-# Sonuç: "merhaba nasılsın" 
+# Her kelimenin ilk harfini büyük yapma
+sonuc = el.yazi.baslik_yap("merhaba dünya")  # Sonuç: "Merhaba Dünya"
 
-# Düzeltme mesafesini ayarlama (daha esnek düzeltmeler için)
-duzeltilmis_metin = el.string.correct_text("merhba nasilsin", language="tr", max_distance=3)
-# Sonuç: "merhaba nasılsın"
+# Harflerin büyük/küçük durumunu tersine çevirme
+sonuc = el.yazi.buyuk_kucuk_degistir("Merhaba")  # Sonuç: "mERHABA"
 
-# Kelime veri tabanını güncelleme
-# Daha fazla kelime ile kelime havuzunu genişletmek için:
-success = el.string.update_word_database()  # Hem Türkçe hem İngilizce
-success = el.string.update_word_database(language="tr")  # Sadece Türkçe
-success = el.string.update_word_database(language="en")  # Sadece İngilizce
+# Metnin sadece harflerden oluşup oluşmadığını kontrol etme
+sonuc = el.yazi.harf_mi("Merhaba")  # Sonuç: True
+sonuc = el.yazi.harf_mi("Merhaba123")  # Sonuç: False
+
+# Metnin sadece rakamlardan oluşup oluşmadığını kontrol etme
+sonuc = el.yazi.rakam_mi("12345")  # Sonuç: True
+sonuc = el.yazi.rakam_mi("12a45")  # Sonuç: False
+
+# Metindeki her kelimeyi tersine çevirme
+sonuc = el.yazi.kelimeleri_tersine_cevir("Merhaba Dünya")  # Sonuç: "abahreM aynüD"
 ```
 
 ### Liste İşlevleri
@@ -229,6 +285,21 @@ sonuc = el.list.sort([3, 1, 4, 2, 5])  # Sonuç: [1, 2, 3, 4, 5]
 
 # Listeden tekrarlayan öğeleri kaldırma (benzersiz liste)
 sonuc = el.list.unique([1, 2, 2, 3, 3, 4, 5, 5])  # Sonuç: [1, 2, 3, 4, 5]
+```
+
+### Liste İşlevleri (Türkçe)
+
+`dizi` modülü, `list` modülünün Türkçe alternatifidir:
+
+```python
+# Listeyi tersine çevirme
+sonuc = el.dizi.tersine_cevir([1, 2, 3, 4, 5])  # Sonuç: [5, 4, 3, 2, 1]
+
+# Listeyi sıralama
+sonuc = el.dizi.sirala([3, 1, 4, 2, 5])  # Sonuç: [1, 2, 3, 4, 5]
+
+# Listeden tekrarlayan öğeleri kaldırma (benzersiz liste)
+sonuc = el.dizi.benzersiz([1, 2, 2, 3, 3, 4, 5, 5])  # Sonuç: [1, 2, 3, 4, 5]
 ```
 
 ### Görüntü İşleme İşlevleri
@@ -800,6 +871,11 @@ for text in texts:
     dil = el.string.detect_language(text)
     print(f"'{text}' metni {dil} dilinde")
 
+# NOT: Aşağıdaki yazım denetimi ve düzeltme işlevleri henüz uygulanma 
+# aşamasında olup tam olarak çalışmayabilir. Gelecek sürümlerde bu 
+# özellikler tam olarak desteklenecektir.
+
+"""
 # Yanlış yazılmış metinleri düzeltme
 yanlis_metinler = {
     "tr": "meraba nasilsin bugun hva nasil",
@@ -819,6 +895,7 @@ print(f"Tespit edilen dil: {dil}")
 
 oneriler = el.string.suggest_correction(user_input, language=dil, max_suggestions=5)
 print(f"Öneriler: {oneriler}")
+"""
 ```
 
 ### Senaryo 4: Görüntü İşleme Uygulaması
@@ -857,8 +934,34 @@ print("Görüntü işleme tamamlandı!")
 **ModuleNotFoundError: No module named 'cv2'**  
 Çözüm: OpenCV'yi yükleyin: `pip install opencv-python`
 
-**Diğer hata türleri**  
-Eğer herhangi bir hata ile karşılaşırsanız, lütfen GitHub deposunda bir issue açın.
+**OSError veya VideoCapture hatası**  
+Çözüm: Video dosyalarınızın doğru formatta ve erişilebilir olduğundan emin olun. Bazı codec'ler ek modüller gerektirebilir.
+
+**DLL hatası (Windows'ta)**  
+Çözüm: Visual C++ yeniden dağıtılabilir paketlerinin güncel olduğundan emin olun.
+
+**Yetersiz bellek hatası**  
+Çözüm: Büyük videolar ile çalışırken, `resize` parametrelerini kullanarak boyutları küçültün veya `frame_interval` kullanarak işlenen kare sayısını azaltın.
+
+## Performans İpuçları
+
+1. Büyük videolar ile çalışırken, kare atlama (frame skipping) işlevlerini kullanın
+2. Görüntü boyutlandırma ile bellek tüketimini azaltın
+3. Video işleme sırasında tüm kareleri hafızada tutmak yerine, disk üzerine kaydedin
+4. Hareket algılama için `min_area` değerini uygun şekilde ayarlayın
+
+## Lisans
+
+Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+## İletişim
+
+Herhangi bir soru, öneri veya geri bildirim için:
+
+- GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs)
+- E-posta: efekan8190nefesogeu@gmail.com
+
+### Powered By Efekan Nefesoğlu
 
 ## Katkı Rehberi
 
@@ -887,22 +990,9 @@ C: `pip install --upgrade elan` komutunu kullanarak kütüphanenin son sürümü
 **S: Görüntü işleme fonksiyonları nasıl çalışır?**  
 C: Görüntü işleme fonksiyonları, OpenCV kütüphanesini kullanır ve görüntü işleme işlemleri için bir OpenCV nesnesi döndürür.
 
-**S: Yazım denetimi ve düzeltme işlevleri hangi dilleri destekler?**  
-C: Şu anda Türkçe ve İngilizce dillerini destekler. Otomatik dil tespiti özelliği ile yazılan metnin diline göre düzeltmeler yapılabilir.
+**S: Yazım denetimi ve düzeltme işlevleri geliyor mu?**  
+C: Evet, yazım denetimi ve düzeltme işlevleri geliştirme aşamasındadır ve gelecek sürümlerde eklenecektir.
 
-**S: Kelime veri tabanı ne kadar büyüktür?**  
-C: İlk kurulumda temel bir kelime kümesi gelir. `update_word_database()` fonksiyonu ile daha kapsamlı kelime havuzları internet üzerinden indirilebilir.
-
-## Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
-## İletişim
-
-Herhangi bir soru, öneri veya geri bildirim için:
-
-- GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs)
-- E-posta: efekan8190nefesogeu@gmail.com
-
-### Powered By Efekan Nefesoğlu
+**S: Video işleme işlevleri için Türkçe alternatifler de eklenecek mi?**  
+C: Evet, video işleme modülü için Türkçe alternatif isimlendirmeler gelecek sürümlerde eklenecektir.
 

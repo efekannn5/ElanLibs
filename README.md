@@ -958,7 +958,7 @@ Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 Herhangi bir soru, öneri veya geri bildirim için:
 
-- GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs) , [https://github.com/elaaisceen](ttps://github.com/elaaisceen)
+- GitHub: [https://github.com/efekannn5/ElanLibs](https://github.com/efekannn5/ElanLibs) , [https://github.com/elaaisceen](https://github.com/elaaisceen)
 - E-posta: efekan8190nefesogeu@gmail.com
 
 ### Powered By Efekan Nefesoğlu and Elanur Tuana İŞCEN
